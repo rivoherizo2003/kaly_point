@@ -1,0 +1,25 @@
+Je voudrais créer une application mobile en flutter. Utilise du Material component widgets et comme couleur de base un bleu code couleur: #3B5998.Tu devras me créer les images des interfaces de chaque fonctionnalité. Voici les fonctionnalité:
+- Une session est représenté par:
+    - Nom de session
+    - Date de session
+    - Date de création
+- Une personne est représenté par:
+    - Un numéro
+    - Un nom
+    - Un prénom
+- Création de session de distribution de petit déjeuner/déjeuner/diner pour plusieurs personnes
+- Checker que une personne a pris sa part de petit déjeuner/déjeuner/diner durant la session
+- Annuler si une personne a été checker par erreur durant une session
+- Avoir une dashboard pour chaque session:
+       - Pour voir le nombre de personne qui a déjà pris petit déjeuner/déjeuner/diner
+       - Pour voir le nombre de personne qui n'ont pas encore pris leur petit déjeuner/déjeuner/diner
+       - Pour voir le nombre total de personne enregistrées
+       - Une liste des personnes qui ont déjà pris leur petit déjeuner/déjeuner/diner (avec une fonctionnalité de recherche)
+       - Une liste des personnes qui n'ont pas encore pris leur petit déjeuner/déjeuner/diner (avec une fonctionnalité de recherche)
+
+- Pouvoir enregistrer une nouvelle personne et checker que cette personne  a pris sa part de petit déjeuner/déjeuner/diner durant la session
+- Pouvoir modifier les informations d'une personne
+- Clotûrer une session
+- Supprimer une session
+- Modifier les informations d'une session
+- Une interface qui liste toutes les personnes avec option de recherche
