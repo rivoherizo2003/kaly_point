@@ -7,29 +7,19 @@
 .buildlog/
 .history
 
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+*.sublime-workspace
 
-
-# Flutter repo-specific
-/bin/cache/
-/bin/internal/bootstrap.bat
-/bin/internal/bootstrap.sh
-/bin/mingit/
-/dev/benchmarks/mega_gallery/
-/dev/bots/.recipe_deps
-/dev/bots/android_tools/
-/dev/devicelab/ABresults*.json
-/dev/docs/doc/
-/dev/docs/flutter.docs.zip
-/dev/docs/lib/
-/dev/docs/pubspec.yaml
-/dev/integration_tests/**/xcuserdata
-/dev/integration_tests/**/Pods
-/packages/flutter/coverage/
-version
-analysis_benchmark.json
-
-# packages file containing multi-root paths
-.packages.generated
+# Environment
+.env
+.env.local
+.env.*.local
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -56,6 +46,7 @@ unlinked_spec.ds
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
 *.jks
+*.keystore
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
@@ -86,6 +77,9 @@ unlinked_spec.ds
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/**/*.mobileprovision
+**/ios/**/*.p12
+**/ios/**/*.cer
 
 # macOS
 **/Flutter/ephemeral/
@@ -109,6 +103,9 @@ coverage/
 
 # Symbols
 app.*.symbols
+
+# FVM (Flutter Version Management)
+.fvm/
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
