@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaly_point/models/add_session.dart';
 import 'package:kaly_point/models/edit_session.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/services/sessions/session_service.dart';
@@ -79,16 +80,16 @@ class SessionViewModel extends ChangeNotifier {
   }
 
   /// Create a new session
-  Future<void> createSession(Session session) async {
-    if (session.title.isEmpty) {
+  Future<void> createSession(AddSession newSession) async {
+    if (newSession.title.isEmpty) {
       _errorMessage = 'Session title cannot be empty';
       notifyListeners();
       return;
     }
 
     try {
-      await _sessionService.insertSession(session);
-      fetchSessions();
+      int idNewSession = await _sessionService.insertSession(newSession);
+      _sessions.insert(0, Session(id: idNewSession, title: newSession.title, createdAt: newSession.createdAt, description: newSession.description));
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Failed to create session: $e';
@@ -106,6 +107,7 @@ class SessionViewModel extends ChangeNotifier {
         _sessions[index] = Session(
           id: sessionUpdated.id,
           title: sessionUpdated.title,
+          description: sessionUpdated.description,
           createdAt: session.createdAt,
         );
       }

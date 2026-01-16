@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:kaly_point/models/add_session.dart';
 import 'package:kaly_point/models/edit_session.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/services/database_service.dart';
@@ -27,7 +28,7 @@ class SessionService {
         .toList();
   }
 
-  Future<int> insertSession(Session session) async {
+  Future<int> insertSession(AddSession session) async {
     final db = await _databaseService.database;
     try {
       final id = await db.insert("sessions", {
@@ -46,13 +47,12 @@ class SessionService {
     final db = await _databaseService.database;
     try {
       debugPrint("session id ${session.id}");
-      final i = await db.update(
+      await db.update(
         "sessions",
         {'title': session.title, 'description': session.description},
         where: 'id = ?',
         whereArgs: [session.id]
       );
-      debugPrint("i = $i");
 
       return session;
     } catch (error) {

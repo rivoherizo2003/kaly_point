@@ -42,7 +42,7 @@ class _EditSessionPageState extends State<EditSessionPage> {
       final sessionToEdit = sessionViewModel.sessions.firstWhere((element) => element.id == widget.sessionId);
       setState(() {
         _titleController.text = sessionToEdit.title;
-        _descriptionController.text = sessionToEdit.description!;
+        _descriptionController.text = sessionToEdit.description ?? "vide";
       });
     } catch (e) {
       throw Exception(e);

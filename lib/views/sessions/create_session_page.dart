@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaly_point/models/add_session.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -32,8 +33,7 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
   void _createNewSession() {
     if (_formKey.currentState!.validate()) {
       context.read<SessionViewModel>().createSession(
-        Session(
-          id: null,
+        AddSession(
           title: _titleController.text.trim(),
           createdAt: DateTime.now(),
           description: _descriptionController.text.trim(),

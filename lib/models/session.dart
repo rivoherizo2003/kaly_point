@@ -1,11 +1,11 @@
 class Session {
-  int? id;
+  int id;
   final String title; // TM 2026
   final String? description; // Fort dauphin (destination)
   final DateTime createdAt;
 
   Session({
-    this.id,
+    required this.id,
     required this.title,
     this.description,
     required this.createdAt,

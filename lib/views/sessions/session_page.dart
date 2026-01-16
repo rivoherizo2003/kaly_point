@@ -3,6 +3,7 @@ import 'package:kaly_point/constants/colors.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
+import 'package:kaly_point/views/checkpoints/check_points_page.dart';
 import 'package:kaly_point/views/sessions/create_session_page.dart';
 import 'package:kaly_point/views/sessions/edit_session_page.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
@@ -48,7 +49,7 @@ class _SessionPageState extends State<SessionPage> {
 
       final maxScroll = _scrollController.position.maxScrollExtent;
       final currentScroll = _scrollController.offset;
-      if(currentScroll > 0 && currentScroll >= (maxScroll - 200)){
+      if (currentScroll > 0 && currentScroll >= (maxScroll - 200)) {
         context.read<SessionViewModel>().loadMore();
         // _scrollController.jumpTo(0.0);
       }
@@ -142,7 +143,8 @@ class _SessionPageState extends State<SessionPage> {
 
           return ListView.builder(
             controller: _scrollController,
-            itemCount: viewModel.sessions.length + (viewModel.isLoadingMore ? 1 : 0),
+            itemCount:
+                viewModel.sessions.length + (viewModel.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (viewModel.sessions.isEmpty) {
                 return const Center(
@@ -153,8 +155,11 @@ class _SessionPageState extends State<SessionPage> {
                 );
               }
 
-              if(index == viewModel.sessions.length){
-                return const Padding(padding: EdgeInsets.all(16.0), child: Center(child: CircularProgressIndicator(),),);
+              if (index == viewModel.sessions.length) {
+                return const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Center(child: CircularProgressIndicator()),
+                );
               }
 
               final Session session = viewModel.sessions[index];
@@ -166,7 +171,14 @@ class _SessionPageState extends State<SessionPage> {
                   child: InkWell(
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
-                      debugPrint("Card tapped");
+                      if (session.id != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CheckPointsPage(sessionId: session.id),
+                          ),
+                        );
+                      }
                     },
                     child: CardWidget(
                       cardTitle: session.title,
