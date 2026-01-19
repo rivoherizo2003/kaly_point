@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/models/add_session.dart';
-import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -40,7 +39,7 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
         ),
       );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Session added with success")),
+        const SnackBar(content: Text("Session ajoutée avec succés")),
       );
       // close modal
       Navigator.pop(context);
@@ -74,16 +73,16 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  hintText: 'Session title',
+                  hintText: 'Titre',
                   prefixIcon: const Icon(Icons.title),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a session title';
+                    return 'Veuillez saisir le titre';
                   }
 
                   if ((value.length < 3)) {
-                    return 'Title must be at least 5 characters';
+                    return 'Au moins 5 caractères';
                   }
 
                   return null;
@@ -93,7 +92,7 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
                 controller: _descriptionController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  hintText: 'Session description',
+                  hintText: 'Description',
                   prefixIcon: const Icon(Icons.description),
                 ),
               ),
@@ -106,7 +105,7 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
                         side: const BorderSide(color: Colors.orange),
                         foregroundColor: Colors.orange,
                       ),
-                      child: const Text("Cancel"),
+                      child: const Text("Annuler"),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -117,7 +116,7 @@ class _CreateSessionPageState extends State<CreateSessionPage> {
                         side: const BorderSide(color: Colors.green),
                         foregroundColor: Colors.green,
                       ),
-                      child: const Text("Create"),
+                      child: const Text("Créer"),
                     ),
                   ),
                 ],

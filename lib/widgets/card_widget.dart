@@ -64,7 +64,8 @@ class CardWidget extends StatelessWidget {
                     side: const BorderSide(color: Colors.blue, width: 1),
                     foregroundColor: Colors.blue,
                   ),
-                ),
+                )
+                ,
                 IconButton.outlined(
                   onPressed: callBackButton2,
                   icon: const Icon(Icons.delete),

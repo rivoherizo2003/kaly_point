@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:kaly_point/models/add_session.dart';
 import 'package:kaly_point/models/edit_session.dart';
 import 'package:kaly_point/models/session.dart';
-import 'package:kaly_point/services/sessions/session_service.dart';
+import 'package:kaly_point/services/session_service.dart';
 
 /// ViewModel for Session management
 /// Handles business logic and state management between View and Model
 class SessionViewModel extends ChangeNotifier {
   final SessionService _sessionService = SessionService();
 
-  List<Session> _sessions = [];
+  final List<Session> _sessions = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;
   bool _hasMore = false;
@@ -72,7 +72,7 @@ class SessionViewModel extends ChangeNotifier {
         _hasMore = false;
       }
     } catch (e) {
-      _errorMessage = 'Failed to fetch sessions: $e';
+      _errorMessage = 'Erreur lors de la récupération de la liste des sessions';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -82,7 +82,7 @@ class SessionViewModel extends ChangeNotifier {
   /// Create a new session
   Future<void> createSession(AddSession newSession) async {
     if (newSession.title.isEmpty) {
-      _errorMessage = 'Session title cannot be empty';
+      _errorMessage = 'Ajouter un titre de session';
       notifyListeners();
       return;
     }
@@ -92,7 +92,7 @@ class SessionViewModel extends ChangeNotifier {
       _sessions.insert(0, Session(id: idNewSession, title: newSession.title, createdAt: newSession.createdAt, description: newSession.description));
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'Failed to create session: $e';
+      _errorMessage = 'Erreur lors de la création de la session';
     }
     notifyListeners();
   }
@@ -113,7 +113,7 @@ class SessionViewModel extends ChangeNotifier {
       }
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'Failed to update session: $e';
+      _errorMessage = 'Erreur lors de la mise à jour';
     }
     notifyListeners();
   }
@@ -131,7 +131,7 @@ class SessionViewModel extends ChangeNotifier {
 
       _errorMessage = null;
     } catch (e) {
-      _errorMessage = 'Failed to delete session: $e';
+      _errorMessage = 'Erreur lors de la suppression de la session';
     } finally {
       notifyListeners();
     }
@@ -143,7 +143,7 @@ class SessionViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<EditSession?> getSessionById(int sessionId) async {
+  Future<Session?> getSessionById(int sessionId) async {
     try {
       return await _sessionService.findOneById(sessionId);
     } catch (error) {

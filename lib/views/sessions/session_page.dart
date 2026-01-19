@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/constants/colors.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
@@ -7,6 +6,7 @@ import 'package:kaly_point/views/checkpoints/check_points_page.dart';
 import 'package:kaly_point/views/sessions/create_session_page.dart';
 import 'package:kaly_point/views/sessions/edit_session_page.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
+import 'package:kaly_point/widgets/my_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:kaly_point/widgets/card_widget.dart';
 
@@ -51,7 +51,6 @@ class _SessionPageState extends State<SessionPage> {
       final currentScroll = _scrollController.offset;
       if (currentScroll > 0 && currentScroll >= (maxScroll - 200)) {
         context.read<SessionViewModel>().loadMore();
-        // _scrollController.jumpTo(0.0);
       }
     }
   }
@@ -87,8 +86,8 @@ class _SessionPageState extends State<SessionPage> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => ConfirmDialog(
-        title: 'Delete session?',
-        content: 'Are you sure to delete the session $title?',
+        title: 'Suppression session?',
+        content: 'Êtes vous sur de supprimer cette session $title?',
         confirmText: 'Delete',
       ),
     );
@@ -100,7 +99,7 @@ class _SessionPageState extends State<SessionPage> {
 
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Session deleted")));
+      ).showSnackBar(const SnackBar(content: Text("Session supprimée")));
     }
   }
 
@@ -109,12 +108,7 @@ class _SessionPageState extends State<SessionPage> {
     final appBarOpacity = (_scrollOffset / 100).clamp(0.0, 1.0);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        titleTextStyle: TextStyle(color: AppColors.primaryColor, fontSize: 20),
-        backgroundColor: Colors.white.withValues(alpha: appBarOpacity),
-        elevation: appBarOpacity > 0.5 ? 4.0 : 0.0,
-      ),
+      appBar: MyAppBar(title: widget.title, appBarOpacity: appBarOpacity),
       body: Consumer<SessionViewModel>(
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {
@@ -150,7 +144,7 @@ class _SessionPageState extends State<SessionPage> {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Text("No sessions yet. Create one to get started"),
+                    child: Text("Pas de session. Créer une session"),
                   ),
                 );
               }
@@ -171,19 +165,17 @@ class _SessionPageState extends State<SessionPage> {
                   child: InkWell(
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
-                      if (session.id != null) {
-                        Navigator.of(context).push(
+                      Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) =>
-                                CheckPointsPage(sessionId: session.id),
+                                CheckPointsPage(sessionId: session.id, titleSession: session.title,),
                           ),
                         );
-                      }
                     },
                     child: CardWidget(
                       cardTitle: session.title,
                       cardText1:
-                          'Created at ${DateHelper.formatDate(session.createdAt)}',
+                          'Crée le ${DateHelper.formatDate(session.createdAt)}',
                       cardText2: session.description,
                       enabledDelete: true,
                       enabledEdit: true,
@@ -200,9 +192,14 @@ class _SessionPageState extends State<SessionPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createNewSession,
-        tooltip: 'Create Session',
+        tooltip: 'Création Session',
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.amber.withAlpha(450),
         child: const Icon(Icons.add),
       ),
+      // persistentFooterButtons: <Widget>[
+      //   FloatingActionButton(child: const Icon(Icons.house),onPressed: () => DatabaseService().seedDatabase(),)
+      // ]
     );
   }
 }

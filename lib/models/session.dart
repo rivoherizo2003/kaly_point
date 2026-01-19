@@ -15,18 +15,8 @@ class Session {
     return Session(
       id: map['id'],
       title: map['title'],
-      createdAt: DateTime.parse(map['createdAt']),
+      createdAt: DateTime.parse(map['created_at']),
       description: map['description'] != null ? map["description"] : null,
     );
-  }
-
-  // Convert to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'createdAt': createdAt.toIso8601String(),
-      'description': description,
-    };
   }
 }

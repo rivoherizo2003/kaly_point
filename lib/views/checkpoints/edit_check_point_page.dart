@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/models/edit_session.dart';
-import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
+import 'package:kaly_point/models/edit_check_point.dart';
+import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
 import 'package:provider/provider.dart';
 
-class EditSessionPage extends StatefulWidget {
+class EditCheckPointPage extends StatefulWidget {
+  final int checkPointId;
   final int sessionId;
 
-  const EditSessionPage({super.key, required this.sessionId});
+  const EditCheckPointPage({super.key, required this.checkPointId, required this.sessionId});
 
   @override
-  State<EditSessionPage> createState() => _EditSessionPageState();
+  State<EditCheckPointPage> createState() => _EditCheckPointPageState();
 }
 
-class _EditSessionPageState extends State<EditSessionPage> {
+class _EditCheckPointPageState extends State<EditCheckPointPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
-  late EditSession? editSession;
+  late EditCheckPointPage? editCheckPointPage;
 
   @override
   void initState() {
@@ -25,7 +26,7 @@ class _EditSessionPageState extends State<EditSessionPage> {
     _descriptionController = TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback((_){
-      _loadSessionData();
+      _loadCheckPointData();
     });
   }
 
@@ -36,31 +37,31 @@ class _EditSessionPageState extends State<EditSessionPage> {
     super.dispose();
   }
 
-  void _loadSessionData() async {
-    final sessionViewModel = context.read<SessionViewModel>();
+  void _loadCheckPointData() async {
+    final checkPointViewModel = context.read<CheckpointViewmodel>();
     try {
-      final sessionToEdit = sessionViewModel.sessions.firstWhere((element) => element.id == widget.sessionId);
+      final checkPointToEdit = checkPointViewModel.checkpoints.firstWhere((element) => element.id == widget.checkPointId);
       setState(() {
-        _titleController.text = sessionToEdit.title;
-        _descriptionController.text = sessionToEdit.description ?? "vide";
+        _titleController.text = checkPointToEdit.title;
+        _descriptionController.text = checkPointToEdit.description ?? "vide";
       });
     } catch (e) {
       throw Exception(e);
     }
   }
 
-  void _saveSession() {
+  void _saveCheckPoint() {
     if (_formKey.currentState!.validate()) {
-      context.read<SessionViewModel>().saveSession(
-        EditSession(
-          id: widget.sessionId,
+      context.read<CheckpointViewmodel>().saveCheckPoint(
+        EditCheckPoint(
+          id: widget.checkPointId,
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
         ),
       );
-      context.read<SessionViewModel>().fetchSessions();
+      context.read<CheckpointViewmodel>().fetchCheckPoints(sessionId:widget.sessionId);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Session sauvegardée")),
+        const SnackBar(content: Text("Pointage sauvegardée")),
       );
       // close modal
       Navigator.pop(context);
@@ -132,7 +133,7 @@ class _EditSessionPageState extends State<EditSessionPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => _saveSession(),
+                      onPressed: () => _saveCheckPoint(),
                       style: ElevatedButton.styleFrom(
                         side: const BorderSide(color: Colors.green),
                         foregroundColor: Colors.green,

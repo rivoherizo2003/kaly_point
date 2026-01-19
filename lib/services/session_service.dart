@@ -16,7 +16,7 @@ class SessionService {
     final int offset = (page - 1) * limit;
 
     final results = await db
-        .query("sessions",limit: limit, offset: offset, orderBy: "createdAt DESC")
+        .query("sessions",limit: limit, offset: offset, orderBy: "created_at DESC")
         .onError((error, stackTrace) {
           throw Exception('Failed to fetch sessions: $error');
         });
@@ -34,7 +34,7 @@ class SessionService {
       final id = await db.insert("sessions", {
         'title': session.title,
         'description': session.description,
-        'createdAt': session.createdAt.toIso8601String(),
+        'created_at': session.createdAt.toIso8601String(),
       });
 
       return id;
@@ -46,7 +46,6 @@ class SessionService {
   Future<EditSession> updateSession(EditSession session) async {
     final db = await _databaseService.database;
     try {
-      debugPrint("session id ${session.id}");
       await db.update(
         "sessions",
         {'title': session.title, 'description': session.description},
@@ -70,7 +69,7 @@ class SessionService {
     }
   }
 
-  Future<EditSession> findOneById(int sessionId) async {
+  Future<Session> findOneById(int sessionId) async {
     final db = await _databaseService.database;
 
     try {
@@ -81,7 +80,7 @@ class SessionService {
         limit: 1,
       );
 
-      return EditSession.fromMap(session.first);
+      return Session.fromMap(session.first);
     } catch (error) {
       throw Exception("Failed to retrieve session: $error");
     }
