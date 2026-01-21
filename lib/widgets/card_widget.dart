@@ -57,6 +57,7 @@ class CardWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               spacing: 4.0,
               children: <Widget>[
+                if(enabledEdit)
                 IconButton.outlined(
                   onPressed: callBackButton1,
                   icon: const Icon(Icons.edit),
@@ -66,6 +67,7 @@ class CardWidget extends StatelessWidget {
                   ),
                 )
                 ,
+                if(enabledDelete)
                 IconButton.outlined(
                   onPressed: callBackButton2,
                   icon: const Icon(Icons.delete),

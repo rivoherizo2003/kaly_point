@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/models/add_session.dart';
-import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
+import 'package:kaly_point/viewmodels/session_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class CreateSessionPage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/utils/date_helper.dart';
-import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
+import 'package:kaly_point/viewmodels/session_viewmodel.dart';
 import 'package:kaly_point/views/checkpoints/check_points_page.dart';
 import 'package:kaly_point/views/sessions/create_session_page.dart';
 import 'package:kaly_point/views/sessions/edit_session_page.dart';

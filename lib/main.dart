@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kaly_point/constants/colors.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
+import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/views/sessions/session_page.dart';
-import 'package:kaly_point/viewmodels/sessions/session_viewmodel.dart';
+import 'package:kaly_point/viewmodels/session_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -29,7 +30,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => SessionViewModel()),
-        ChangeNotifierProvider(create: (_) => CheckpointViewmodel())
+        ChangeNotifierProvider(create: (_) => CheckpointViewmodel()),
+        ChangeNotifierProvider(create: (_) => PerformCheckPointPageViewModel()),
       ],
       child: MaterialApp(
         title: 'Kaly Point',

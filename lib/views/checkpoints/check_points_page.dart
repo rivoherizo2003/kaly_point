@@ -163,19 +163,18 @@ class _CheckPointsPageState extends State<CheckPointsPage>
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) => PerformCheckPointPage(
-                            checkPointId: checkPoint.id,
-                            sessionId: widget.sessionId,
                             sessionTitle: widget.titleSession,
-                            checkPointTitle: checkPoint.title,
+                            checkPoint: checkPoint,
                           ),
                         ),
                       );
                     },
+
                     child: CardWidget(
                       cardTitle: DateHelper.formatDate(checkPoint.createdAt),
                       cardText1: checkPoint.title,
                       cardText2: checkPoint.description,
-                      enabledEdit: false,
+                      enabledEdit: true,
                       enabledDelete: true,
                       callBackButton1: () => _editCheckPoint(checkPoint.id),
                       callBackButton2: () => _confirmDeleteCheckPoint(
