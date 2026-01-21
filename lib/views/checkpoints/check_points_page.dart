@@ -3,6 +3,7 @@ import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
+import 'package:kaly_point/views/checkpoint/perform_check_point_page.dart';
 import 'package:kaly_point/views/checkpoints/create_check_point_page.dart';
 import 'package:kaly_point/views/checkpoints/edit_check_point_page.dart';
 import 'package:kaly_point/widgets/card_widget.dart';
@@ -13,8 +14,12 @@ import 'package:provider/provider.dart';
 class CheckPointsPage extends StatefulWidget {
   final int sessionId;
   final String titleSession;
-  
-  const CheckPointsPage({super.key, required this.sessionId, required this.titleSession});
+
+  const CheckPointsPage({
+    super.key,
+    required this.sessionId,
+    required this.titleSession,
+  });
 
   @override
   State<CheckPointsPage> createState() => _CheckPointsPageState();
@@ -35,7 +40,9 @@ class _CheckPointsPageState extends State<CheckPointsPage>
     _scrollController.addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CheckpointViewmodel>().initialize(sessionId:widget.sessionId);
+      context.read<CheckpointViewmodel>().initialize(
+        sessionId: widget.sessionId,
+      );
       // session = await SessionService().findOneById(widget.sessionId);
     });
   }
@@ -57,7 +64,9 @@ class _CheckPointsPageState extends State<CheckPointsPage>
       final maxScroll = _scrollController.position.maxScrollExtent;
       final currentScroll = _scrollController.offset;
       if (currentScroll > 0 && currentScroll >= (maxScroll - 200)) {
-        context.read<CheckpointViewmodel>().loadMore(sessionId:widget.sessionId);
+        context.read<CheckpointViewmodel>().loadMore(
+          sessionId: widget.sessionId,
+        );
       }
     }
   }
@@ -66,12 +75,18 @@ class _CheckPointsPageState extends State<CheckPointsPage>
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (context) => CreateCheckPointPage(sessionId: widget.sessionId, title: widget.titleSession),
+      builder: (context) => CreateCheckPointPage(
+        sessionId: widget.sessionId,
+        title: widget.titleSession,
+      ),
     );
   }
 
-  void _confirmDeleteCheckPoint(String title, String createdAt, int checkpointId) async {
-
+  void _confirmDeleteCheckPoint(
+    String title,
+    String createdAt,
+    int checkpointId,
+  ) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => ConfirmDialog(
@@ -84,7 +99,10 @@ class _CheckPointsPageState extends State<CheckPointsPage>
     if (confirmed == true) {
       if (!mounted) return;
 
-      context.read<CheckpointViewmodel>().deleteCheckpoint(checkpointId, widget.sessionId);
+      context.read<CheckpointViewmodel>().deleteCheckpoint(
+        checkpointId,
+        widget.sessionId,
+      );
 
       ScaffoldMessenger.of(
         context,
@@ -96,7 +114,8 @@ class _CheckPointsPageState extends State<CheckPointsPage>
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (context) => EditCheckPointPage(checkPointId: id, sessionId: widget.sessionId),
+      builder: (context) =>
+          EditCheckPointPage(checkPointId: id, sessionId: widget.sessionId),
     );
   }
 
@@ -105,7 +124,10 @@ class _CheckPointsPageState extends State<CheckPointsPage>
     final appBarOpacity = (_scrollOffset / 100).clamp(0.0, 1.0);
 
     return Scaffold(
-      appBar: MyAppBar(title: "Pointages [${widget.titleSession}]", appBarOpacity: appBarOpacity),
+      appBar: MyAppBar(
+        title: "Pointages [${widget.titleSession}]",
+        appBarOpacity: appBarOpacity,
+      ),
       body: Consumer<CheckpointViewmodel>(
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {
@@ -138,7 +160,16 @@ class _CheckPointsPageState extends State<CheckPointsPage>
                   child: InkWell(
                     splashColor: Colors.green.withAlpha(30),
                     onTap: () {
-                      debugPrint("Go to pointage");
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => PerformCheckPointPage(
+                            checkPointId: checkPoint.id,
+                            sessionId: widget.sessionId,
+                            sessionTitle: widget.titleSession,
+                            checkPointTitle: checkPoint.title,
+                          ),
+                        ),
+                      );
                     },
                     child: CardWidget(
                       cardTitle: DateHelper.formatDate(checkPoint.createdAt),
@@ -149,7 +180,9 @@ class _CheckPointsPageState extends State<CheckPointsPage>
                       callBackButton1: () => _editCheckPoint(checkPoint.id),
                       callBackButton2: () => _confirmDeleteCheckPoint(
                         checkPoint.title,
-                        DateHelper.formatDate(checkPoint.createdAt), checkPoint.id),
+                        DateHelper.formatDate(checkPoint.createdAt),
+                        checkPoint.id,
+                      ),
                     ),
                   ),
                 ),
