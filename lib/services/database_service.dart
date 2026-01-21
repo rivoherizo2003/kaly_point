@@ -99,6 +99,24 @@ class DatabaseService {
       );
 
     ''');
+
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS session_person(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        person_id INTEGER NOT NULL,
+        session_id INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        CONSTRAINT fk_person
+          FOREIGN KEY (person_id)
+          REFERENCES person (id)
+          ON DELETE CASCADE,
+        CONSTRAINT fk_session
+          FOREIGN KEY (session_id)
+          REFERENCES sessions (id)
+          ON DELETE CASCADE
+      );
+
+    ''');
   }
 
   Future<void> seedDatabase() async {
@@ -171,6 +189,19 @@ class DatabaseService {
       batch.insert('check_point_person', {
         'person_id': randomPersonId,
         'check_point_id': randomCheckPointId,
+        'created_at': DateTime.now().toIso8601String(),
+      });
+    }
+
+    // 4. Générer 100 LIENS (CheckPoint <-> Person)
+    // On lie des personnes aléatoires à des checkpoints aléatoires
+    for (int i = 1; i <= 100; i++) {
+      int randomPersonId = random.nextInt(100) + 1;
+      int randomSessionId = random.nextInt(100) + 1;
+
+      batch.insert('session_person', {
+        'person_id': randomPersonId,
+        'session_id': randomSessionId,
         'created_at': DateTime.now().toIso8601String(),
       });
     }

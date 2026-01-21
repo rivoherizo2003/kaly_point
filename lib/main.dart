@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:kaly_point/constants/colors.dart';
+import 'package:kaly_point/services/database_service.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/views/sessions/session_page.dart';
@@ -19,6 +20,7 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   }
   runApp(const MyApp());
+  // DatabaseService().seedDatabase();
 }
 
 class MyApp extends StatelessWidget {

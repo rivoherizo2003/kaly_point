@@ -7,7 +7,6 @@ class StateSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -48,6 +47,7 @@ class StateSection extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(color: borderCardColor),
           borderRadius: BorderRadius.circular(12),
+          color: Colors.white10
         ),
         child: Column(
           children: [
