@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kaly_point/models/state_check_point.dart';
 
 class StateSection extends StatelessWidget {
-  const StateSection({super.key});
+  final StateCheckPoint stateCheckPoint;
+  const StateSection({super.key, required this.stateCheckPoint});
 
   @override
   Widget build(BuildContext context) {
@@ -12,21 +14,21 @@ class StateSection extends StatelessWidget {
         children: [
           _buildStatCard(
             title: "Total:",
-            score: "150",
+            score: stateCheckPoint.nbrPersonInSession,
             valueColor: Colors.black,
             borderCardColor: Colors.black.withAlpha(100)
           ),
           SizedBox(width: 8),
           _buildStatCard(
             title: "Servi:",
-            score: "50",
+            score: stateCheckPoint.nbrPersonServed,
             valueColor: Colors.green,
             borderCardColor: Colors.green.shade200
           ),
           SizedBox(width: 8),
           _buildStatCard(
             title: "A servir:",
-            score: "100",
+            score: stateCheckPoint.nbrPersonToServe,
             valueColor: Colors.deepOrange,
             borderCardColor: Colors.deepOrange.shade200
           ),
@@ -37,7 +39,7 @@ class StateSection extends StatelessWidget {
 
   Widget _buildStatCard({
     required String title,
-    required String score,
+    required int score,
     required Color valueColor,
     required Color borderCardColor
   }) {
@@ -57,9 +59,9 @@ class StateSection extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              score,
+              "$score ",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
                 color: valueColor,
               ),

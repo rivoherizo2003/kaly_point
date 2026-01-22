@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/constants/colors.dart';
 import 'package:kaly_point/models/check_point.dart';
+import 'package:kaly_point/models/state_check_point.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/views/checkpoint/create_new_person_page.dart';
@@ -25,7 +26,49 @@ class PerformCheckPointPage extends StatefulWidget {
 }
 
 class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
-  final double _scrollOffset = 0;
+  late ScrollController _scrollControllerPersonServed;
+  double _scrollOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollControllerPersonServed = ScrollController();
+    _scrollControllerPersonServed.addListener(_onScroll);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PerformCheckPointViewModel>().initialize(sessionId: widget.checkPoint.sessionId, checkPointId: widget.checkPoint.id);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollControllerPersonServed.removeListener(_onScroll);
+    _scrollControllerPersonServed.dispose();
+    super.dispose();
+  }
+
+  void _onScroll(){
+    if(_scrollControllerPersonServed.hasClients){
+      setState(() {
+        _scrollOffset = _scrollControllerPersonServed.offset;
+      });
+
+      final maxScroll = _scrollControllerPersonServed.position.maxScrollExtent;
+      final currentScroll = _scrollControllerPersonServed.offset;
+      if(currentScroll > 0 && currentScroll >= (maxScroll - 100)){
+        context.read<PerformCheckPointViewModel>().loadMore(checkPointId: widget.checkPoint.id, sessionId: widget.checkPoint.sessionId);
+      }
+    }
+  }
+
+  void _addNewPerson() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) => CreateNewPersonPage(checkPointId: widget.checkPoint.id, sessionId: widget.checkPoint.sessionId,),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appBarOpacity = (_scrollOffset / 100).clamp(0.0, 1.0);
@@ -37,12 +80,12 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
               "${widget.checkPoint.title} [${DateHelper.formatDate(widget.checkPoint.createdAt)}]",
           appBarOpacity: appBarOpacity,
         ),
-        body: Consumer<PerformCheckPointPageViewModel>(
+        body: Consumer<PerformCheckPointViewModel>(
           builder: (context, viewModel, _) {
             return Column(
               children: [
                 Text(widget.sessionTitle),
-                const StateSection(),
+                StateSection(stateCheckPoint: viewModel.stateCheckPoint),
                 Expanded(
                   child: Column(
                     children: [
@@ -107,16 +150,5 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
         ),
       ),
     );
-  }
-
-  void _addNewPerson() {
-    // TODO : add new row in table person
-    showModalBottomSheet(
-      isScrollControlled: true,
-      context: context,
-      builder: (context) => CreateNewPersonPage(),
-    );
-    // TODO : add this person to the session
-    // TODO : add this person to check point
   }
 }

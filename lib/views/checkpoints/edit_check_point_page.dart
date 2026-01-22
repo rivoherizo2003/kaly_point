@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/models/edit_check_point.dart';
+import 'package:kaly_point/dto/edit_check_point_dto.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -53,7 +53,7 @@ class _EditCheckPointPageState extends State<EditCheckPointPage> {
   void _saveCheckPoint() {
     if (_formKey.currentState!.validate()) {
       context.read<CheckpointViewmodel>().saveCheckPoint(
-        EditCheckPoint(
+        EditCheckPointDto(
           id: widget.checkPointId,
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),

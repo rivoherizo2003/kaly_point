@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/models/add_session.dart';
-import 'package:kaly_point/models/edit_session.dart';
+import 'package:kaly_point/dto/add_session_dto.dart';
+import 'package:kaly_point/dto/edit_session_dto.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/services/session_service.dart';
 
@@ -80,7 +80,7 @@ class SessionViewModel extends ChangeNotifier {
   }
 
   /// Create a new session
-  Future<void> createSession(AddSession newSession) async {
+  Future<void> createSession(AddSessionDto newSession) async {
     if (newSession.title.isEmpty) {
       _errorMessage = 'Ajouter un titre de session';
       notifyListeners();
@@ -98,7 +98,7 @@ class SessionViewModel extends ChangeNotifier {
   }
 
   /// Update a session
-  Future<void> saveSession(EditSession session) async {
+  Future<void> saveSession(EditSessionDto session) async {
     try {
       final sessionUpdated = await _sessionService.updateSession(session);
       final index = _sessions.indexWhere((s) => s.id == session.id);

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/models/new_person.dart';
-import 'package:kaly_point/viewmodels/person_viewmodel.dart';
+import 'package:kaly_point/dto/new_person_dto.dart';
+import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class CreateNewPersonPage extends StatefulWidget {
-  const CreateNewPersonPage({super.key});
+  final int checkPointId;
+  final int sessionId;
+  const CreateNewPersonPage({super.key, required this.checkPointId, required this.sessionId});
   @override
   State<CreateNewPersonPage> createState() => _CreateNewPersonPageState();
 }
@@ -29,10 +31,20 @@ class _CreateNewPersonPageState extends State<CreateNewPersonPage> {
   }
 
   void _createNewPerson() {
-    if(_formKey.currentState!.validate()){
-      context.read<PersonViewModel>().createPerson(NewPerson(lastname: _lastnameController.text.trim(), firstname: _firstnameController.text.trim(), createdAt: DateTime.now()));
+    if (_formKey.currentState!.validate()) {
+      context
+          .read<PerformCheckPointViewModel>()
+          .assignNewPersonToCheckPointAndSession(
+            NewPersonDto(
+              lastname: _lastnameController.text.trim(),
+              firstname: _firstnameController.text.trim(),
+              createdAt: DateTime.now(),
+            ),
+            widget.checkPointId,
+            widget.sessionId
+          );
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Une personne ajoutée avec succés"))
+        const SnackBar(content: Text("Une personne ajoutée avec succés")),
       );
     }
   }

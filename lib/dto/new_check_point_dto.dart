@@ -1,10 +1,10 @@
-class NewCheckPoint {
+class NewCheckPointDto {
   final String title; // TM 2026
   final String? description; // Fort dauphin (destination)
   final DateTime createdAt;
   final int sessionId;
 
-  NewCheckPoint({
+  NewCheckPointDto({
     required this.title,
     this.description,
     required this.createdAt,

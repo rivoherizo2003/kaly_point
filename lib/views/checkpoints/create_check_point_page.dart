@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/models/new_check_point.dart';
+import 'package:kaly_point/dto/new_check_point_dto.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -35,7 +35,7 @@ final _formKey = GlobalKey<FormState>();
   void _createNewCheckPoint() {
     if (_formKey.currentState!.validate()) {
       context.read<CheckpointViewmodel>().createCheckPoint(
-        NewCheckPoint(
+        NewCheckPointDto(
           title: _titleController.text.trim(),
           createdAt: DateTime.now(),
           description: _descriptionController.text.trim(),

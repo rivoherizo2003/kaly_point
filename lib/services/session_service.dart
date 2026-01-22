@@ -1,5 +1,5 @@
-import 'package:kaly_point/models/add_session.dart';
-import 'package:kaly_point/models/edit_session.dart';
+import 'package:kaly_point/dto/add_session_dto.dart';
+import 'package:kaly_point/dto/edit_session_dto.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/services/database_service.dart';
 
@@ -27,7 +27,7 @@ class SessionService {
         .toList();
   }
 
-  Future<int> insertSession(AddSession session) async {
+  Future<int> insertSession(AddSessionDto session) async {
     final db = await _databaseService.database;
     try {
       final id = await db.insert("sessions", {
@@ -42,7 +42,7 @@ class SessionService {
     }
   }
 
-  Future<EditSession> updateSession(EditSession session) async {
+  Future<EditSessionDto> updateSession(EditSessionDto session) async {
     final db = await _databaseService.database;
     try {
       await db.update(

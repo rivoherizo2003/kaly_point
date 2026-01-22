@@ -1,9 +1,9 @@
-class EditCheckPoint {
+class EditCheckPointDto {
   int id;
   final String title;
   final String? description;
 
-  EditCheckPoint({
+  EditCheckPointDto({
     required this.id,
     required this.title,
     this.description,

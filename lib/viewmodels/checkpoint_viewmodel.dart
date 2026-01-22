@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/models/check_point.dart';
-import 'package:kaly_point/models/edit_check_point.dart';
-import 'package:kaly_point/models/new_check_point.dart';
+import 'package:kaly_point/dto/edit_check_point_dto.dart';
+import 'package:kaly_point/dto/new_check_point_dto.dart';
 import 'package:kaly_point/services/checkpoint_service.dart';
 
 class CheckpointViewmodel extends ChangeNotifier {
@@ -69,10 +69,8 @@ class CheckpointViewmodel extends ChangeNotifier {
       } else {
         _hasMore = false;
       }
-      debugPrint("ici ${_checkPoints.length}");
     } catch (e) {
-      _errorMessage = 'Failed to fetch check points: $e';
-      debugPrint("error $_errorMessage");
+      _errorMessage = 'Erreur lors de la récupération de la liste des pointages';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -97,7 +95,7 @@ class CheckpointViewmodel extends ChangeNotifier {
     }
   }
 
-  void createCheckPoint(NewCheckPoint newCheckPoint) async {
+  void createCheckPoint(NewCheckPointDto newCheckPoint) async {
     if (newCheckPoint.title.isEmpty) {
       _errorMessage = 'Titre pointage ne peut être vide';
       notifyListeners();
@@ -106,7 +104,7 @@ class CheckpointViewmodel extends ChangeNotifier {
 
     try {
       int idNewCheckPoint = await _checkpointService.insertNewCheckPoint(newCheckPoint);
-      _checkPoints.insert(0, CheckPoint(id: idNewCheckPoint, title: newCheckPoint.title, createdAt: newCheckPoint.createdAt, description: newCheckPoint.description));
+      _checkPoints.insert(0, CheckPoint(id: idNewCheckPoint, title: newCheckPoint.title, createdAt: newCheckPoint.createdAt, description: newCheckPoint.description, sessionId: newCheckPoint.sessionId));
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Impossible de créer le pointage!!';
@@ -114,7 +112,7 @@ class CheckpointViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveCheckPoint(EditCheckPoint editCheckPoint) async {
+  Future<void> saveCheckPoint(EditCheckPointDto editCheckPoint) async {
     try {
       final checkPointUpdated = await _checkpointService.updateCheckPoint(editCheckPoint);
       final index = _checkPoints.indexWhere((s) => s.id == editCheckPoint.id);
@@ -125,6 +123,7 @@ class CheckpointViewmodel extends ChangeNotifier {
           title: checkPointUpdated.title,
           description: checkPointUpdated.description,
           createdAt: checkPoint.createdAt,
+          sessionId: checkPoint.sessionId
         );
       }
       _errorMessage = null;

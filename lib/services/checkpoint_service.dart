@@ -1,6 +1,6 @@
 import 'package:kaly_point/models/check_point.dart';
-import 'package:kaly_point/models/edit_check_point.dart';
-import 'package:kaly_point/models/new_check_point.dart';
+import 'package:kaly_point/dto/edit_check_point_dto.dart';
+import 'package:kaly_point/dto/new_check_point_dto.dart';
 import 'package:kaly_point/services/database_service.dart';
 
 class CheckpointService {
@@ -31,7 +31,7 @@ class CheckpointService {
     return results.map((checkpoint) => CheckPoint.fromMap(checkpoint));
   }
 
-  Future<int> insertNewCheckPoint(NewCheckPoint newCheckPoint) async {
+  Future<int> insertNewCheckPoint(NewCheckPointDto newCheckPoint) async {
     final db = await _databaseService.database;
     try {
       final id = await db.insert("check_points", {
@@ -57,7 +57,7 @@ class CheckpointService {
     }
   }
 
-  Future<dynamic> updateCheckPoint(EditCheckPoint editCheckPoint) async {
+  Future<dynamic> updateCheckPoint(EditCheckPointDto editCheckPoint) async {
     final db = await _databaseService.database;
     try {
       await db.update(

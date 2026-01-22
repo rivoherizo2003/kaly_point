@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => SessionViewModel()),
         ChangeNotifierProvider(create: (_) => CheckpointViewmodel()),
-        ChangeNotifierProvider(create: (_) => PerformCheckPointPageViewModel()),
+        ChangeNotifierProvider(create: (_) => PerformCheckPointViewModel()),
       ],
       child: MaterialApp(
         title: 'Kaly Point',

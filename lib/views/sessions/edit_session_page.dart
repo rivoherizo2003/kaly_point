@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/models/edit_session.dart';
+import 'package:kaly_point/dto/edit_session_dto.dart';
 import 'package:kaly_point/viewmodels/session_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +16,7 @@ class _EditSessionPageState extends State<EditSessionPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
-  late EditSession? editSession;
+  late EditSessionDto? editSession;
 
   @override
   void initState() {
@@ -52,7 +52,7 @@ class _EditSessionPageState extends State<EditSessionPage> {
   void _saveSession() {
     if (_formKey.currentState!.validate()) {
       context.read<SessionViewModel>().saveSession(
-        EditSession(
+        EditSessionDto(
           id: widget.sessionId,
           title: _titleController.text.trim(),
           description: _descriptionController.text.trim(),
