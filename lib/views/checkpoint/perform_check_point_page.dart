@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/constants/colors.dart';
 import 'package:kaly_point/models/check_point.dart';
-import 'package:kaly_point/models/state_check_point.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/views/checkpoint/create_new_person_page.dart';
 import 'package:kaly_point/widgets/checkpoint/state_section.dart';
-import 'package:kaly_point/widgets/checkpoint/tab_list_served_persons.dart';
-import 'package:kaly_point/widgets/checkpoint/tab_list_to_serve_persons.dart';
+import 'package:kaly_point/views/checkpoint/tab_list_served_persons_page.dart';
+import 'package:kaly_point/views/checkpoint/tab_list_to_serve_persons_page.dart';
 import 'package:kaly_point/widgets/my_app_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -26,39 +25,16 @@ class PerformCheckPointPage extends StatefulWidget {
 }
 
 class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
-  late ScrollController _scrollControllerPersonServed;
-  double _scrollOffset = 0;
 
   @override
   void initState() {
     super.initState();
-    _scrollControllerPersonServed = ScrollController();
-    _scrollControllerPersonServed.addListener(_onScroll);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PerformCheckPointViewModel>().initialize(sessionId: widget.checkPoint.sessionId, checkPointId: widget.checkPoint.id);
-    });
   }
 
   @override
   void dispose() {
-    _scrollControllerPersonServed.removeListener(_onScroll);
-    _scrollControllerPersonServed.dispose();
     super.dispose();
-  }
-
-  void _onScroll(){
-    if(_scrollControllerPersonServed.hasClients){
-      setState(() {
-        _scrollOffset = _scrollControllerPersonServed.offset;
-      });
-
-      final maxScroll = _scrollControllerPersonServed.position.maxScrollExtent;
-      final currentScroll = _scrollControllerPersonServed.offset;
-      if(currentScroll > 0 && currentScroll >= (maxScroll - 100)){
-        context.read<PerformCheckPointViewModel>().loadMore(checkPointId: widget.checkPoint.id, sessionId: widget.checkPoint.sessionId);
-      }
-    }
   }
 
   void _addNewPerson() {
@@ -71,14 +47,13 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
 
   @override
   Widget build(BuildContext context) {
-    final appBarOpacity = (_scrollOffset / 100).clamp(0.0, 1.0);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: MyAppBar(
           title:
               "${widget.checkPoint.title} [${DateHelper.formatDate(widget.checkPoint.createdAt)}]",
-          appBarOpacity: appBarOpacity,
+          appBarOpacity: 0.5,
         ),
         body: Consumer<PerformCheckPointViewModel>(
           builder: (context, viewModel, _) {
@@ -95,8 +70,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                         indicatorColor: AppColors.primaryBlue,
                         indicatorWeight: 3,
                         tabs: [
-                          Tab(text: "A servir (100)"),
-                          Tab(text: "Servi (45)"),
+                          Tab(text: "A servir ${viewModel.stateCheckPoint.nbrPersonToServe}"),
+                          Tab(text: "Servi ${viewModel.stateCheckPoint.nbrPersonServed}"),
                         ],
                       ),
                       SizedBox(height: 8),
@@ -126,17 +101,18 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Expanded(
+                      Expanded(
                   child: TabBarView(
                     children: <Widget>[
-                      const TabListToServePersons(),
-                      const TabListServedPersons(),
+                      TabListToServePersonsPage(checkPoint: widget.checkPoint, sessionTitle: widget.checkPoint.title,),
+                      TabListServedPersonsPage(checkPoint: widget.checkPoint, sessionTitle: widget.checkPoint.title,),
                     ],
                   ),
                 ),
+                    ],
+                  ),
+                ),
+                
               ],
             );
           },

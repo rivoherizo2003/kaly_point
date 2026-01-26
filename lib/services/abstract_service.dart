@@ -3,7 +3,7 @@ import 'package:sqflite/sqflite.dart';
 
 abstract class AbstractService {
   late Database db;
-  late DatabaseService databaseService;
+  final DatabaseService databaseService = DatabaseService();
   
   Future<void> initDB() async {
     db = await databaseService.database;
