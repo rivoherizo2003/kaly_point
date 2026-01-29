@@ -6,7 +6,11 @@ import 'package:provider/provider.dart';
 class CreateNewPersonPage extends StatefulWidget {
   final int checkPointId;
   final int sessionId;
-  const CreateNewPersonPage({super.key, required this.checkPointId, required this.sessionId});
+  const CreateNewPersonPage({
+    super.key,
+    required this.checkPointId,
+    required this.sessionId,
+  });
   @override
   State<CreateNewPersonPage> createState() => _CreateNewPersonPageState();
 }
@@ -41,11 +45,15 @@ class _CreateNewPersonPageState extends State<CreateNewPersonPage> {
               createdAt: DateTime.now(),
             ),
             widget.checkPointId,
-            widget.sessionId
+            widget.sessionId,
           );
+          
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Une personne ajoutée avec succés")),
       );
+      if (context.read<PerformCheckPointViewModel>().errorMessage == null) {
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -77,6 +85,16 @@ class _CreateNewPersonPageState extends State<CreateNewPersonPage> {
                 padding: EdgeInsets.all(18.0),
                 child: Text("Ajouter une personne"),
               ),
+              if (context.read<PerformCheckPointViewModel>().errorMessage !=
+                  null)
+                Padding(
+                  padding: EdgeInsets.all(18.0),
+                  child: Text(
+                    context.read<PerformCheckPointViewModel>().errorMessage ??
+                        "",
+                        style: TextStyle(color: Colors.red),
+                  ),
+                ),
               TextFormField(
                 controller: _lastnameController,
                 decoration: InputDecoration(

@@ -117,6 +117,16 @@ class DatabaseService {
       );
 
     ''');
+
+    await db.execute('''
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_session_person 
+      ON session_person (person_id, session_id);
+    ''');
+
+    await db.execute('''
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_unique_check_point_person 
+      ON check_point_person (person_id, check_point_id);
+    ''');
   }
 
   Future<void> seedDatabase() async {
@@ -199,11 +209,15 @@ class DatabaseService {
       int randomPersonId = random.nextInt(100) + 1;
       int randomSessionId = random.nextInt(100) + 1;
 
-      batch.insert('session_person', {
-        'person_id': randomPersonId,
-        'session_id': randomSessionId,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      try {
+        batch.insert('session_person', {
+          'person_id': randomPersonId,
+          'session_id': randomSessionId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } on Exception catch (e) {
+        continue;
+      }
     }
 
     await batch.commit(noResult: true);

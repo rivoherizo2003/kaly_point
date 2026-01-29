@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/constants/colors.dart';
-import 'package:kaly_point/dto/person_check_point_dto.dart';
-import 'package:kaly_point/dto/person_session_dto.dart';
+import 'package:kaly_point/dto/person_to_serve_dto.dart';
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
+import 'package:kaly_point/widgets/confirm_dialog.dart';
 import 'package:provider/provider.dart';
 
 class TabListToServePersonsPage extends StatefulWidget {
@@ -24,14 +23,13 @@ class TabListToServePersonsPage extends StatefulWidget {
 
 class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
   late ScrollController _scrollControllerToPersonServes;
-  double _scrollOffset = 0;
   @override
   void initState() {
     super.initState();
     _scrollControllerToPersonServes = ScrollController();
     _scrollControllerToPersonServes.addListener(_onScrollToServePersons);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PerformCheckPointViewModel>().initialize(
+      context.read<PerformCheckPointViewModel>().initializeTabToServePersons(
         sessionId: widget.checkPoint.sessionId,
         checkPointId: widget.checkPoint.id,
       );
@@ -48,10 +46,6 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
 
   void _onScrollToServePersons() {
     if (_scrollControllerToPersonServes.hasClients) {
-      setState(() {
-        _scrollOffset = _scrollControllerToPersonServes.offset;
-      });
-
       final maxScroll =
           _scrollControllerToPersonServes.position.maxScrollExtent;
       final currentScroll = _scrollControllerToPersonServes.offset;
@@ -64,6 +58,42 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
     }
   }
 
+  void _onClickAssignPerson({
+    required int personId,
+    required int sessionId,
+    required String personFullname,
+  }) async {
+    final bool? confirmedDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: "Valider pointage",
+        content: "Etes vous sur de valider le pointage de [$personFullname] ?",
+        confirmText: 'Pointer',
+      ),
+    );
+
+    if (confirmedDelete == true) {
+      if (!mounted) return;
+
+      context.read<PerformCheckPointViewModel>().assignPersonToCheckPoint(
+        personId,
+        widget.checkPoint.id,
+        widget.checkPoint.sessionId,
+      );
+
+      if (context.read<PerformCheckPointViewModel>().errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${context.read<PerformCheckPointViewModel>().errorMessage}")),
+      );
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("$personFullname ajouté(e) au pointage!")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<PerformCheckPointViewModel>(
@@ -73,7 +103,7 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
         }
 
         return ListView.separated(
-          separatorBuilder: (context, index){
+          separatorBuilder: (context, index) {
             return const Divider(
               height: 1,
               thickness: 0.2,
@@ -87,16 +117,32 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
               viewModel.personsToServe.length +
               (viewModel.isLoadingMore ? 1 : 0),
           itemBuilder: (context, index) {
-            if(viewModel.personsToServe.isEmpty){
+            if (viewModel.personsToServe.isEmpty) {
               return const Center(
-                child: Padding(padding: EdgeInsets.all(16.0),
-                child: Text("Liste des personnes à servir vide."),),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text("Liste des personnes à servir vide."),
+                ),
               );
             }
 
-            final PersonSessionDto personSessionDto = viewModel.personsToServe[index];
+            final PersonToServeDto personToServeDto =
+                viewModel.personsToServe[index];
 
-            return ListTilePerson(lastname: personSessionDto.lastname, firstname: personSessionDto.firstname, callBackTilePerson: () => {},personId: personSessionDto.personId, icon: const Icon(Icons.check), colorBtn: Colors.green, foregroundColorBtn: Colors.green,);
+            return ListTilePerson(
+              lastname: personToServeDto.lastname,
+              firstname: personToServeDto.firstname,
+              callBackTilePerson: () => _onClickAssignPerson(
+                personId: personToServeDto.personId,
+                sessionId: widget.checkPoint.sessionId,
+                personFullname:
+                    "${personToServeDto.firstname} ${personToServeDto.lastname}",
+              ),
+              personId: personToServeDto.personId,
+              icon: const Icon(Icons.check),
+              colorBtn: Colors.green,
+              foregroundColorBtn: Colors.green,
+            );
           },
         );
       },

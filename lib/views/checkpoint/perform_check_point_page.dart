@@ -25,11 +25,9 @@ class PerformCheckPointPage extends StatefulWidget {
 }
 
 class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
-
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -41,7 +39,10 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
-      builder: (context) => CreateNewPersonPage(checkPointId: widget.checkPoint.id, sessionId: widget.checkPoint.sessionId,),
+      builder: (context) => CreateNewPersonPage(
+        checkPointId: widget.checkPoint.id,
+        sessionId: widget.checkPoint.sessionId,
+      ),
     );
   }
 
@@ -64,14 +65,55 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                 Expanded(
                   child: Column(
                     children: [
+                      const Text("Liste des personnes"),
                       TabBar(
                         labelColor: AppColors.primaryBlue,
                         unselectedLabelColor: Colors.grey,
                         indicatorColor: AppColors.primaryBlue,
                         indicatorWeight: 3,
                         tabs: [
-                          Tab(text: "A servir ${viewModel.stateCheckPoint.nbrPersonToServe}"),
-                          Tab(text: "Servi ${viewModel.stateCheckPoint.nbrPersonServed}"),
+                          Tab(
+                            child: Row(  
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 8),
+                                const Text("A servir"),
+                                Badge(
+                                  label: Text(
+                                    "${viewModel.stateCheckPoint.nbrPersonToServe}",
+                                  ),
+                                  textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                  backgroundColor: Colors.deepOrange.shade300,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 1,
+                                  ),
+                                  child: Icon(Icons.person_2_outlined),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Tab(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 8),
+                                const Text("Servi"),
+                                Badge(
+                                  label: Text(
+                                    "${viewModel.stateCheckPoint.nbrPersonServed}",
+                                  ),
+                                  textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                  backgroundColor: Colors.green,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                    vertical: 1,
+                                  ),
+                                  child: Icon(Icons.person_2_outlined),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                       SizedBox(height: 8),
@@ -102,17 +144,22 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                         ),
                       ),
                       Expanded(
-                  child: TabBarView(
-                    children: <Widget>[
-                      TabListToServePersonsPage(checkPoint: widget.checkPoint, sessionTitle: widget.checkPoint.title,),
-                      TabListServedPersonsPage(checkPoint: widget.checkPoint, sessionTitle: widget.checkPoint.title,),
+                        child: TabBarView(
+                          children: <Widget>[
+                            TabListToServePersonsPage(
+                              checkPoint: widget.checkPoint,
+                              sessionTitle: widget.checkPoint.title,
+                            ),
+                            TabListServedPersonsPage(
+                              checkPoint: widget.checkPoint,
+                              sessionTitle: widget.checkPoint.title,
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                    ],
-                  ),
-                ),
-                
               ],
             );
           },

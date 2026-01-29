@@ -3,7 +3,7 @@ import 'package:kaly_point/dto/new_person_dto.dart';
 import 'package:kaly_point/dto/new_person_check_point_dto.dart';
 import 'package:kaly_point/dto/new_session_person_dto.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
-import 'package:kaly_point/dto/person_session_dto.dart';
+import 'package:kaly_point/dto/person_to_serve_dto.dart';
 import 'package:kaly_point/models/person.dart';
 import 'package:kaly_point/models/person_check_point.dart';
 import 'package:kaly_point/models/state_check_point.dart';
@@ -17,14 +17,14 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       PerformCheckpointSessionService();
   final PersonService _personService = PersonService();
   final SessionPersonService _sessionPersonService = SessionPersonService();
-  final CheckPointPersonService _checkPointPersonService = CheckPointPersonService();
+  final CheckPointPersonService _checkPointPersonService =
+      CheckPointPersonService();
 
-  final List<PersonSessionDto> _personsToServe = [];
-  List<PersonSessionDto> get personsToServe => _personsToServe;
+  final List<PersonToServeDto> _personsToServe = [];
+  List<PersonToServeDto> get personsToServe => _personsToServe;
 
   final List<PersonCheckPointDto> _personsServed = [];
   List<PersonCheckPointDto> get personsServed => _personsServed;
-
 
   bool _isLoading = false;
   bool _isLoadingMore = false;
@@ -38,12 +38,11 @@ class PerformCheckPointViewModel extends ChangeNotifier {
   bool _hasMoreServedPersons = false;
   int _currentPageServedPersons = 1;
 
-
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isLoadingMore => _isLoadingMore;
 
-    bool get isLoadingServedPersons => _isLoadingServedPersons;
+  bool get isLoadingServedPersons => _isLoadingServedPersons;
   bool get isLoadingMoreServedPersons => _isLoadingMoreServedPersons;
 
   StateCheckPoint _stateCheckPoint = StateCheckPoint(
@@ -52,8 +51,8 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     nbrPersonToServe: 0,
   );
   StateCheckPoint get stateCheckPoint => _stateCheckPoint;
-  
-  Future<void> initialize({
+
+  Future<void> initializeTabToServePersons({
     required int sessionId,
     required int checkPointId,
   }) async {
@@ -65,11 +64,20 @@ class PerformCheckPointViewModel extends ChangeNotifier {
 
     await fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
     notifyListeners();
+  }
+
+  Future<void> initializeTabServedPersons({
+    required int sessionId,
+    required int checkPointId,
+  }) async {
+    await fetchStateCheckPoint(
+      sessionId: sessionId,
+      checkPointId: checkPointId,
+    );
+    notifyListeners();
 
     await fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
     notifyListeners();
-
-    debugPrint("initialize tab");
   }
 
   Future<void> fetchStateCheckPoint({
@@ -89,16 +97,23 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       nbrPersonServed: nbrServedPersonCheckPoint,
       nbrPersonToServe: (nbrPersonInSession - nbrServedPersonCheckPoint),
     );
+    notifyListeners();
   }
 
-  Future<void> assignNewPersonToCheckPointAndSession(NewPersonDto newPerson, int checkPointId, int sessionId) async {
+  Future<void> assignNewPersonToCheckPointAndSession(
+    NewPersonDto newPerson,
+    int checkPointId,
+    int sessionId,
+  ) async {
     late Person person;
+    _errorMessage = null;
     try {
       person = await _personService.insertPerson(newPerson);
-      
-      _errorMessage = null;
+      notifyListeners();
     } catch (error) {
       _errorMessage = 'Erreur lors de la création d\'une personne';
+      notifyListeners();
+      return;
     }
 
     //add this person to session
@@ -112,105 +127,201 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
     } catch (error) {
       _errorMessage = 'Erreur lors de l\'ajout de la personne sur une session';
+      notifyListeners();
+      return;
     }
 
     //add this person to check point of the session
     try {
-      NewPersonCheckPointDto newPersonCheckPointDto = NewPersonCheckPointDto(personId: person.id, sessionId: sessionId, checkPointId: checkPointId, createdAt: DateTime.now());
-      PersonCheckPoint personCheckPoint = await _checkPointPersonService.createPersonCheckPoint(newPersonCheckPointDto);
+      NewPersonCheckPointDto newPersonCheckPointDto = NewPersonCheckPointDto(
+        personId: person.id,
+        sessionId: sessionId,
+        checkPointId: checkPointId,
+        createdAt: DateTime.now(),
+      );
+      PersonCheckPoint personCheckPoint = await _checkPointPersonService
+          .createPersonCheckPoint(newPersonCheckPointDto);
 
       _personsServed.insert(
         0,
-        PersonCheckPointDto(personId: person.id, lastname: person.lastname, firstname: person.firstname, checkPointId: checkPointId, id: personCheckPoint.id),
+        PersonCheckPointDto(
+          personId: person.id,
+          lastname: person.lastname,
+          firstname: person.firstname,
+          checkPointId: checkPointId,
+          id: personCheckPoint.id,
+        ),
       );
+      notifyListeners();
     } catch (error) {
-      _errorMessage = 'Erreur lors de l\'affection de la personne à un pointage';
+      _errorMessage =
+          'Erreur lors de l\'affection de la personne à un pointage';
+      notifyListeners();
+      return;
     }
-    notifyListeners();
+
+    await fetchStateCheckPoint(
+      sessionId: sessionId,
+      checkPointId: checkPointId,
+    );
   }
 
-  Future<void> loadMoreToServePersons({required int sessionId, required int checkPointId}) async {
-    if(_isLoadingMore || !_hasMore) return;
+  Future<void> assignPersonToCheckPoint(
+    int personId,
+    int checkPointId,
+    int sessionId,
+  ) async {
+    //add this person to check point of the session
+    try {
+      NewPersonCheckPointDto newPersonCheckPointDto = NewPersonCheckPointDto(
+        personId: personId,
+        sessionId: sessionId,
+        checkPointId: checkPointId,
+        createdAt: DateTime.now(),
+      );
+      PersonCheckPoint personCheckPoint = await _checkPointPersonService
+          .createPersonCheckPoint(newPersonCheckPointDto);
+      final Person person = await _personService.findOneById(personId);
+      _personsServed.insert(
+        0,
+        PersonCheckPointDto(
+          personId: person.id,
+          lastname: person.lastname,
+          firstname: person.firstname,
+          checkPointId: checkPointId,
+          id: personCheckPoint.id,
+        ),
+      );
+      _personsToServe.remove(_personsToServe.where((s) => s.personId == person.id).first);
+      _errorMessage = null;
+      notifyListeners();
+    } catch (error) {
+      debugPrint("$error");
+      _errorMessage =
+          'Erreur lors de l\'affection de la personne à un pointage';
+      notifyListeners();
+    }
+    
+    await fetchStateCheckPoint(
+      sessionId: sessionId,
+      checkPointId: checkPointId,
+    );
+  }
+
+  Future<void> loadMoreToServePersons({
+    required int sessionId,
+    required int checkPointId,
+  }) async {
+    if (_isLoadingMore || !_hasMore) return;
 
     _isLoadingMore = true;
     notifyListeners();
 
     _currentPage++;
     notifyListeners();
-    await fetchToServePersons(
-      sessionId: sessionId,
-      checkPointId: checkPointId,
-    );
+    await fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
 
     _isLoadingMore = false;
     notifyListeners();
   }
 
-  Future<void> loadMoreServedPersons({required int sessionId, required int checkPointId}) async {
-    if(_isLoadingMoreServedPersons || !_hasMoreServedPersons) return;
+  Future<void> loadMoreServedPersons({
+    required int sessionId,
+    required int checkPointId,
+  }) async {
+    if (_isLoadingMoreServedPersons || !_hasMoreServedPersons) return;
 
     _isLoadingMoreServedPersons = true;
     notifyListeners();
 
     _currentPageServedPersons++;
     notifyListeners();
-    await fetchServedPersons(
-      sessionId: sessionId,
-      checkPointId: checkPointId,
-    );
+    await fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
 
     _isLoadingMoreServedPersons = false;
     notifyListeners();
   }
-  
-  Future<void> fetchToServePersons({required int sessionId, required int checkPointId}) async {
+
+  Future<void> fetchToServePersons({
+    required int sessionId,
+    required int checkPointId,
+  }) async {
     _isLoading = true;
     _errorMessage = null;
     _personsServed.clear();
     notifyListeners();
-    debugPrint("fetch to serve person $sessionId $_currentPage $_pageSize");
+    debugPrint("Serve person $sessionId $_currentPage $_pageSize");
     try {
-      final personsToServe = await _checkPointPersonService.fetchToServePersons(sessionId:sessionId,page: _currentPage,
-        limit: _pageSize,);
-        if(personsToServe.isNotEmpty){
-          _personsToServe.addAll(personsToServe);
-          _hasMore = true;
-        } else {
-          _hasMore = false;
-        }
+      final personsToServe = await _checkPointPersonService.fetchToServePersons(
+        checkPointId: checkPointId,
+        page: _currentPage,
+        limit: _pageSize,
+      );
+      if (personsToServe.isNotEmpty) {
+        _personsToServe.addAll(personsToServe);
+        _hasMore = true;
+      } else {
+        _hasMore = false;
+      }
     } catch (e) {
-      _errorMessage = 'Erreur lors de la récupération de la liste des personnes à servir';
-        debugPrint("person VM $e");
-
-    } finally{
+      _errorMessage =
+          'Erreur lors de la récupération de la liste des personnes à servir';
+      debugPrint("person VM =>$e");
+    } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
-  
-  Future<void> fetchServedPersons({required int sessionId, required int checkPointId}) async {
+
+  Future<void> fetchServedPersons({
+    required int sessionId,
+    required int checkPointId,
+  }) async {
     _isLoadingServedPersons = true;
     _errorMessage = null;
     _personsServed.clear();
     notifyListeners();
-    debugPrint("fetch to served person $sessionId $_currentPage $_pageSize");
+    debugPrint("Served person $sessionId $_currentPage $_pageSize");
     try {
-      final personsServed = await _checkPointPersonService.fetchServedPersons(checkPointId:checkPointId,page: _currentPageServedPersons,
-        limit: _pageSize,);
-        if(personsServed.isNotEmpty){
-          _personsServed.addAll(personsServed);
-          debugPrint(" ici ${_personsServed.length}");
-          _hasMoreServedPersons = true;
-        } else {
-          _hasMoreServedPersons = false;
-        }
+      final personsServed = await _checkPointPersonService.fetchServedPersons(
+        checkPointId: checkPointId,
+        page: _currentPageServedPersons,
+        limit: _pageSize,
+      );
+      if (personsServed.isNotEmpty) {
+        _personsServed.addAll(personsServed);
+        _hasMoreServedPersons = true;
+      } else {
+        _hasMoreServedPersons = false;
+      }
     } catch (e) {
-      _errorMessage = 'Erreur lors de la récupération de la liste des personnes servi';
-        debugPrint("person VM $e");
-
-    } finally{
+      _errorMessage =
+          'Erreur lors de la récupération de la liste des personnes servi';
+      debugPrint("personfdfd VM $e");
+    } finally {
       _isLoadingServedPersons = false;
       notifyListeners();
     }
+  }
+
+  Future<void> deletePersonCheckPoint(int checkPointPersonId, int sessionId, int checkPointId) async {
+    try {
+      await _checkPointPersonService.deleteCheckPointPerson(
+        checkPointPersonId: checkPointPersonId
+      );
+       _personsServed.remove(_personsServed.where((s) => s.id == checkPointPersonId).first);
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _errorMessage =
+          'Erreur lors de la récupération de la liste des personnes servi';
+      debugPrint("personfdfd VM $e");
+      notifyListeners();
+    }
+
+    await fetchStateCheckPoint(
+      sessionId: sessionId,
+      checkPointId: checkPointId,
+    );
   }
 }

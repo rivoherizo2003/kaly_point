@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
-import 'package:kaly_point/dto/person_session_dto.dart';
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
+import 'package:kaly_point/widgets/confirm_dialog.dart';
 import 'package:provider/provider.dart';
 
 class TabListServedPersonsPage extends StatefulWidget {
@@ -21,15 +21,14 @@ class TabListServedPersonsPage extends StatefulWidget {
 }
 
 class _TabListServedPersons extends State<TabListServedPersonsPage> {
-  late ScrollController _scrollControllerToServedPersons;
-  double _scrollOffset = 0;
+  late ScrollController _scrollControllerServedPersons;
   @override
   void initState() {
     super.initState();
-    _scrollControllerToServedPersons = ScrollController();
-    _scrollControllerToServedPersons.addListener(_onScroll);
+    _scrollControllerServedPersons = ScrollController();
+    _scrollControllerServedPersons.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PerformCheckPointViewModel>().initialize(
+      context.read<PerformCheckPointViewModel>().initializeTabServedPersons(
         sessionId: widget.checkPoint.sessionId,
         checkPointId: widget.checkPoint.id,
       );
@@ -40,25 +39,57 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
   void dispose() {
     super.dispose();
 
-    _scrollControllerToServedPersons.removeListener(_onScroll);
-    _scrollControllerToServedPersons.dispose();
+    _scrollControllerServedPersons.removeListener(_onScroll);
+    _scrollControllerServedPersons.dispose();
   }
 
   void _onScroll() {
-    if (_scrollControllerToServedPersons.hasClients) {
-      setState(() {
-        _scrollOffset = _scrollControllerToServedPersons.offset;
-      });
-
-      final maxScroll =
-          _scrollControllerToServedPersons.position.maxScrollExtent;
-      final currentScroll = _scrollControllerToServedPersons.offset;
+    if (_scrollControllerServedPersons.hasClients) {
+      final maxScroll = _scrollControllerServedPersons.position.maxScrollExtent;
+      final currentScroll = _scrollControllerServedPersons.offset;
       if (currentScroll > 0 && currentScroll >= (maxScroll - 100)) {
-        context.read<PerformCheckPointViewModel>().loadMoreToServePersons(
+        context.read<PerformCheckPointViewModel>().loadMoreServedPersons(
           checkPointId: widget.checkPoint.id,
           sessionId: widget.checkPoint.sessionId,
         );
       }
+    }
+  }
+
+  void _onClickUnassignPerson({
+    required int checkPointPersonId,
+    required String personFullname,
+  }) async {
+    final bool? confirmedUnassign = await showDialog<bool>(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: "Supprimer pointage",
+        content: "Etes vous sur de supprimer le pointage de [$personFullname] ?",
+        confirmText: 'Supprimer',
+      ),
+    );
+
+    if (confirmedUnassign == true) {
+      if (!mounted) return;
+
+      context.read<PerformCheckPointViewModel>().deletePersonCheckPoint(
+        checkPointPersonId,widget.checkPoint.sessionId, widget.checkPoint.id
+      );
+
+      if (context.read<PerformCheckPointViewModel>().errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "${context.read<PerformCheckPointViewModel>().errorMessage}",
+            ),
+          ),
+        );
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("$personFullname supprimé(e) du pointage!")),
+      );
     }
   }
 
@@ -71,7 +102,7 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
         }
 
         return ListView.separated(
-          separatorBuilder: (context, index){
+          separatorBuilder: (context, index) {
             return const Divider(
               height: 1,
               thickness: 0.2,
@@ -80,21 +111,36 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
               color: Colors.grey,
             );
           },
-          controller: _scrollControllerToServedPersons,
+          controller: _scrollControllerServedPersons,
           itemCount:
               viewModel.personsServed.length +
               (viewModel.isLoadingMore ? 1 : 0),
           itemBuilder: (context, index) {
-            if(viewModel.personsServed.isEmpty){
+            if (viewModel.personsServed.isEmpty) {
               return const Center(
-                child: Padding(padding: EdgeInsets.all(16.0),
-                child: Text("Liste des personnes à servir vide."),),
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text("Liste des personnes à servir vide."),
+                ),
               );
             }
 
-            final PersonCheckPointDto personCheckPointDto = viewModel.personsServed[index];
+            final PersonCheckPointDto personCheckPointDto =
+                viewModel.personsServed[index];
 
-            return ListTilePerson(lastname: personCheckPointDto.lastname, firstname: personCheckPointDto.firstname, callBackTilePerson: () => {},personId: personCheckPointDto.personId,icon: const Icon(Icons.undo), colorBtn: Colors.red, foregroundColorBtn: Colors.red);
+            return ListTilePerson(
+              lastname: personCheckPointDto.lastname,
+              firstname: personCheckPointDto.firstname,
+              callBackTilePerson: () => _onClickUnassignPerson(
+                checkPointPersonId: personCheckPointDto.id,
+                personFullname:
+                    "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
+              ),
+              personId: personCheckPointDto.personId,
+              icon: const Icon(Icons.undo),
+              colorBtn: Colors.red,
+              foregroundColorBtn: Colors.red,
+            );
           },
         );
       },

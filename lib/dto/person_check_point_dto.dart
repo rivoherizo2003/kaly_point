@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class PersonCheckPointDto {
   int id;
   int personId;
