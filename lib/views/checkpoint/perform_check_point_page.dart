@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:kaly_point/constants/colors.dart';
 import 'package:kaly_point/models/check_point.dart';
@@ -25,6 +27,9 @@ class PerformCheckPointPage extends StatefulWidget {
 }
 
 class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
+  Timer? _debounce;
+  final TextEditingController _controllerSearch = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +37,7 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -44,6 +50,14 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
         sessionId: widget.checkPoint.sessionId,
       ),
     );
+  }
+
+  void _onSearchChanged(String query){
+    if(_debounce?.isActive ?? false) _debounce!.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 500), (){
+      debugPrint("hello world search $query");
+    });
   }
 
   @override
@@ -123,6 +137,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                           horizontal: 10.0,
                         ),
                         child: TextField(
+                          controller: _controllerSearch,
+                          onChanged: _onSearchChanged,
                           decoration: InputDecoration(
                             prefixIcon: Icon(
                               Icons.search,

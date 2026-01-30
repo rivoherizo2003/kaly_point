@@ -138,13 +138,17 @@ class DatabaseService {
 
     // 1. Générer 100 SESSIONS
     for (int i = 1; i <= 100; i++) {
-      batch.insert('sessions', {
-        'title': 'Session de Formation #$i',
-        'description': 'Description détaillée de la session numéro $i',
-        'created_at': DateTime.now()
-            .subtract(Duration(days: i))
-            .toIso8601String(),
-      });
+      try {
+        batch.insert('sessions', {
+          'title': 'Session de Formation #$i',
+          'description': 'Description détaillée de la session numéro $i',
+          'created_at': DateTime.now()
+              .subtract(Duration(days: i))
+              .toIso8601String(),
+        });
+      } on Exception catch (e) {
+        // TODO
+      }
     }
 
     // 2. Générer 100 PERSONNES
@@ -170,24 +174,30 @@ class DatabaseService {
     ];
 
     for (int i = 1; i <= 100; i++) {
-      batch.insert('person', {
-        'firstname': firstNames[random.nextInt(firstNames.length)],
-        'lastname':
-            '${lastNames[random.nextInt(lastNames.length)]} $i', // Ajout de i pour l'unicité
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      try {
+        batch.insert('person', {
+          'firstname': firstNames[random.nextInt(firstNames.length)],
+          'lastname':
+              '${lastNames[random.nextInt(lastNames.length)]} $i', // Ajout de i pour l'unicité
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } on Exception catch (e) {
+        // TODO
+      }
     }
 
     // 3. Générer 100 CHECK_POINTS (Liés aux sessions)
     // On suppose que les sessions ont des ID de 1 à 100 (générés ci-dessus)
     for (int i = 1; i <= 100; i++) {
       int randomSessionId = random.nextInt(100) + 1; // ID entre 1 et 100
-      batch.insert('check_points', {
-        'session_id': randomSessionId,
-        'title': 'Point de contrôle $i',
-        'description': 'Vérification standard pour ce point.',
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      try {
+        batch.insert('check_points', {
+          'session_id': randomSessionId,
+          'title': 'Point de contrôle $i',
+          'description': 'Vérification standard pour ce point.',
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } on Exception catch (e) {}
     }
 
     // 4. Générer 100 LIENS (CheckPoint <-> Person)
@@ -196,11 +206,13 @@ class DatabaseService {
       int randomPersonId = random.nextInt(100) + 1;
       int randomCheckPointId = random.nextInt(100) + 1;
 
-      batch.insert('check_point_person', {
-        'person_id': randomPersonId,
-        'check_point_id': randomCheckPointId,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      try {
+        batch.insert('check_point_person', {
+          'person_id': randomPersonId,
+          'check_point_id': randomCheckPointId,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      } on Exception catch (e) {}
     }
 
     // 4. Générer 100 LIENS (CheckPoint <-> Person)

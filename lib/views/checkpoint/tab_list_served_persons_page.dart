@@ -138,8 +138,9 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
               ),
               personId: personCheckPointDto.personId,
               icon: const Icon(Icons.undo),
-              colorBtn: Colors.red,
-              foregroundColorBtn: Colors.red,
+              colorBtn: Colors.green,
+              foregroundColorBtn: Colors.green,
+              iconColor:Colors.green
             );
           },
         );

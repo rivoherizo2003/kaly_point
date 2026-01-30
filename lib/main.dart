@@ -20,7 +20,7 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   }
   runApp(const MyApp());
-  // DatabaseService().seedDatabase();
+  //DatabaseService().seedDatabase();
 }
 
 class MyApp extends StatelessWidget {

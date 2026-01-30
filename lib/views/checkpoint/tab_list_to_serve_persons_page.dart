@@ -130,6 +130,7 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
                 viewModel.personsToServe[index];
 
             return ListTilePerson(
+              iconColor: Colors.deepOrange.shade300,
               lastname: personToServeDto.lastname,
               firstname: personToServeDto.firstname,
               callBackTilePerson: () => _onClickAssignPerson(
@@ -140,8 +141,8 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
               ),
               personId: personToServeDto.personId,
               icon: const Icon(Icons.check),
-              colorBtn: Colors.green,
-              foregroundColorBtn: Colors.green,
+              colorBtn: Colors.deepOrange.shade300,
+              foregroundColorBtn: Colors.deepOrange.shade300,
             );
           },
         );
