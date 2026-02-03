@@ -147,7 +147,7 @@ class DatabaseService {
               .toIso8601String(),
         });
       } on Exception catch (e) {
-        // TODO
+        continue;
       }
     }
 
@@ -182,7 +182,7 @@ class DatabaseService {
           'created_at': DateTime.now().toIso8601String(),
         });
       } on Exception catch (e) {
-        // TODO
+        continue;
       }
     }
 
@@ -197,7 +197,9 @@ class DatabaseService {
           'description': 'Vérification standard pour ce point.',
           'created_at': DateTime.now().toIso8601String(),
         });
-      } on Exception catch (e) {}
+      } on Exception catch (e) {
+        continue;
+      }
     }
 
     // 4. Générer 100 LIENS (CheckPoint <-> Person)
@@ -212,7 +214,9 @@ class DatabaseService {
           'check_point_id': randomCheckPointId,
           'created_at': DateTime.now().toIso8601String(),
         });
-      } on Exception catch (e) {}
+      } on Exception catch (e) {
+        continue;
+      }
     }
 
     // 4. Générer 100 LIENS (CheckPoint <-> Person)
