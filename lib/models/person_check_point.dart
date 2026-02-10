@@ -1,6 +1,4 @@
 
-import 'package:kaly_point/dto/person_check_point_dto.dart';
-
 class PersonCheckPoint {
   int id;
   int personId;

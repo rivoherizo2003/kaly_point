@@ -1,19 +1,16 @@
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/dto/edit_check_point_dto.dart';
 import 'package:kaly_point/dto/new_check_point_dto.dart';
-import 'package:kaly_point/services/database_service.dart';
+import 'package:kaly_point/services/abstract_service.dart';
 
-class CheckpointService {
-  final _databaseService = DatabaseService();
-
+class CheckpointService extends AbstractService {
   Future<dynamic> getCheckPoints({
     required int page,
     required int limit,
-    required int sessionId
+    required int sessionId,
   }) async {
-    final db = await _databaseService.database;
-
     final int offset = (page - 1) * limit;
+    final db = await databaseService.database;
 
     final results = await db
         .query(
@@ -22,7 +19,7 @@ class CheckpointService {
           offset: offset,
           orderBy: "created_at DESC",
           where: 'session_id = ?',
-          whereArgs: [sessionId]
+          whereArgs: [sessionId],
         )
         .onError((error, stackTrace) {
           throw Exception('Failed to fetch check points: $error');
@@ -32,13 +29,14 @@ class CheckpointService {
   }
 
   Future<int> insertNewCheckPoint(NewCheckPointDto newCheckPoint) async {
-    final db = await _databaseService.database;
     try {
+      final db = await databaseService.database;
+
       final id = await db.insert("check_points", {
         'title': newCheckPoint.title,
         'description': newCheckPoint.description,
         'created_at': newCheckPoint.createdAt.toIso8601String(),
-        'session_id': newCheckPoint.sessionId
+        'session_id': newCheckPoint.sessionId,
       });
 
       return id;
@@ -48,9 +46,9 @@ class CheckpointService {
   }
 
   Future<void> deleteCheckPoint(int checkpointId) async {
-    final db = await _databaseService.database;
-
     try {
+      final db = await databaseService.database;
+
       db.delete("check_points", where: 'id = ?', whereArgs: [checkpointId]);
     } catch (error) {
       throw Exception("Failed to delete check point: $error");
@@ -58,13 +56,17 @@ class CheckpointService {
   }
 
   Future<dynamic> updateCheckPoint(EditCheckPointDto editCheckPoint) async {
-    final db = await _databaseService.database;
     try {
+      final db = await databaseService.database;
+
       await db.update(
         "check_points",
-        {'title': editCheckPoint.title, 'description': editCheckPoint.description},
+        {
+          'title': editCheckPoint.title,
+          'description': editCheckPoint.description,
+        },
         where: 'id = ?',
-        whereArgs: [editCheckPoint.id]
+        whereArgs: [editCheckPoint.id],
       );
 
       return editCheckPoint;

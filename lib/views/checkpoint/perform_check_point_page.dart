@@ -56,7 +56,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
     if(_debounce?.isActive ?? false) _debounce!.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 500), (){
-      debugPrint("hello world search $query");
+    debugPrint("search $query");
+
     });
   }
 
@@ -144,7 +145,7 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                               Icons.search,
                               color: Colors.grey.shade600,
                             ),
-                            hintText: "Rechercher nom/numéro...",
+                            hintText: "Rechercher numéro_nom_prenom...",
                             hintStyle: TextStyle(color: Colors.grey.shade600),
                             filled: true,
                             fillColor: Colors.grey.shade200,
@@ -156,6 +157,12 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                               vertical: 0,
                               horizontal: 16,
                             ),
+                            suffixIcon: ValueListenableBuilder<TextEditingValue>(valueListenable: _controllerSearch, builder: (context, value, child){
+                              return value.text.isNotEmpty ? IconButton(onPressed: (){
+                                _controllerSearch.clear();
+                                _onSearchChanged('');
+                              }, icon: const Icon(Icons.clear)): const SizedBox.shrink(); 
+                            })
                           ),
                         ),
                       ),

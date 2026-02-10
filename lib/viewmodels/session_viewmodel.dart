@@ -12,7 +12,7 @@ class SessionViewModel extends ChangeNotifier {
   final List<Session> _sessions = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;
-  bool _hasMore = false;
+  bool _hasMore = true;
   int _currentPage = 1;
   final int _pageSize = 5;
   String? _errorMessage;
@@ -22,6 +22,7 @@ class SessionViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isLoadingMore => _isLoadingMore;
+  bool get hasMore => _hasMore;
 
   /// Initialize and fetch sessions
   Future<void> initialize({bool refresh = false}) async {
@@ -58,7 +59,6 @@ class SessionViewModel extends ChangeNotifier {
   Future<void> fetchSessions() async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
 
     try {
       final sessions = await _sessionService.getSessions(
@@ -67,16 +67,15 @@ class SessionViewModel extends ChangeNotifier {
       );
       if (sessions.isNotEmpty) {
         _sessions.addAll(sessions);
-        _hasMore = true;
-      } else {
-        _hasMore = false;
       }
     } catch (e) {
+      debugPrint("$e");
+
       _errorMessage = 'Erreur lors de la récupération de la liste des sessions';
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   /// Create a new session
@@ -89,7 +88,15 @@ class SessionViewModel extends ChangeNotifier {
 
     try {
       int idNewSession = await _sessionService.insertSession(newSession);
-      _sessions.insert(0, Session(id: idNewSession, title: newSession.title, createdAt: newSession.createdAt, description: newSession.description));
+      _sessions.insert(
+        0,
+        Session(
+          id: idNewSession,
+          title: newSession.title,
+          createdAt: newSession.createdAt,
+          description: newSession.description,
+        ),
+      );
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Erreur lors de la création de la session';
@@ -122,9 +129,9 @@ class SessionViewModel extends ChangeNotifier {
   Future<void> deleteSession(int id) async {
     try {
       await _sessionService.deleteSession(id);
-        _sessions.remove(_sessions.where((s) => s.id == id).first);
+      _sessions.remove(_sessions.where((s) => s.id == id).first);
 
-      if(_sessions.length < _pageSize){
+      if (_sessions.length < _pageSize) {
         _sessions.clear();
         await fetchSessions();
       }

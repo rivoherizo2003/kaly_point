@@ -40,10 +40,10 @@ class _CheckPointsPageState extends State<CheckPointsPage>
     _scrollController.addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CheckpointViewmodel>().initialize(
+      final checkPointViewModel = context.read<CheckpointViewmodel>();
+      checkPointViewModel.initialize(
         sessionId: widget.sessionId,
       );
-      // session = await SessionService().findOneById(widget.sessionId);
     });
   }
 
@@ -132,6 +132,26 @@ class _CheckPointsPageState extends State<CheckPointsPage>
         builder: (context, viewModel, _) {
           if (viewModel.isLoading) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          if (viewModel.errorMessage != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    viewModel.errorMessage!,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: viewModel.clearError,
+                    child: const Text('Dismiss'),
+                  ),
+                ],
+              ),
+            );
           }
 
           return ListView.builder(

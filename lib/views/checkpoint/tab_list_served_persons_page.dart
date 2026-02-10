@@ -64,7 +64,8 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
       context: context,
       builder: (context) => ConfirmDialog(
         title: "Supprimer pointage",
-        content: "Etes vous sur de supprimer le pointage de [$personFullname] ?",
+        content:
+            "Etes vous sur de supprimer le pointage de [$personFullname] ?",
         confirmText: 'Supprimer',
       ),
     );
@@ -73,7 +74,9 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
       if (!mounted) return;
 
       context.read<PerformCheckPointViewModel>().deletePersonCheckPoint(
-        checkPointPersonId,widget.checkPoint.sessionId, widget.checkPoint.id
+        checkPointPersonId,
+        widget.checkPoint.sessionId,
+        widget.checkPoint.id,
       );
 
       if (context.read<PerformCheckPointViewModel>().errorMessage != null) {
@@ -131,16 +134,19 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
             return ListTilePerson(
               lastname: personCheckPointDto.lastname,
               firstname: personCheckPointDto.firstname,
-              callBackTilePerson: () => _onClickUnassignPerson(
-                checkPointPersonId: personCheckPointDto.id,
-                personFullname:
-                    "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
-              ),
+              callBackTilePerson: () => {
+                if (personCheckPointDto.checkPointPersonId != null)
+                  _onClickUnassignPerson(
+                    checkPointPersonId: personCheckPointDto.checkPointPersonId!,
+                    personFullname:
+                        "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
+                  ),
+              },
               personId: personCheckPointDto.personId,
               icon: const Icon(Icons.undo),
               colorBtn: Colors.green,
               foregroundColorBtn: Colors.green,
-              iconColor:Colors.green
+              iconColor: Colors.green,
             );
           },
         );

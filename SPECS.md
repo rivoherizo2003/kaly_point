@@ -46,5 +46,5 @@ Cette partie se fera directement dans la page pour faire le pointage.
 
 ## Stocker/synchro les données sur firebase
 
-[] Exporter la base de données sur firebase
-[] Importer les données à partir de firebase
+- [] Exporter la base de données sur firebase
+- [] Importer les données à partir de firebase

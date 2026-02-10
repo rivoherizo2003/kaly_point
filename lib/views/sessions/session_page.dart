@@ -30,7 +30,8 @@ class _SessionPageState extends State<SessionPage> {
     _scrollController.addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SessionViewModel>().initialize();
+      final sessionViewModel = context.read<SessionViewModel>();
+      sessionViewModel.initialize();
     });
   }
 
@@ -137,6 +138,7 @@ class _SessionPageState extends State<SessionPage> {
 
           return ListView.builder(
             controller: _scrollController,
+            physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
             itemCount:
                 viewModel.sessions.length + (viewModel.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {

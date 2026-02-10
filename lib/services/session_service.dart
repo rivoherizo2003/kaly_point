@@ -1,35 +1,34 @@
 import 'package:kaly_point/dto/add_session_dto.dart';
 import 'package:kaly_point/dto/edit_session_dto.dart';
 import 'package:kaly_point/models/session.dart';
-import 'package:kaly_point/services/database_service.dart';
+import 'package:kaly_point/services/abstract_service.dart';
 
-/// Service responsible for session-related operations
-/// Handles API calls, database operations, etc.
-class SessionService {
-  final _databaseService = DatabaseService();
-
+class SessionService extends AbstractService {
   /// Fetch all sessions
-  Future<List<Session>> getSessions({required int page, required int limit}) async {
-    final db = await _databaseService.database;
+  Future<List<Session>> getSessions({
+    required int page,
+    required int limit,
+  }) async {
 
     final int offset = (page - 1) * limit;
+    final db = await databaseService.database;
+      final results = 
+          await db.query(
+            "sessions",
+            limit: limit,
+            offset: offset,
+            orderBy: "created_at DESC",
+          )
+          .onError((error, stackTrace) {
+            throw Exception('Failed to fetch sessions: $error');
+          });
 
-    final results = await db
-        .query("sessions",limit: limit, offset: offset, orderBy: "created_at DESC")
-        .onError((error, stackTrace) {
-          throw Exception('Failed to fetch sessions: $error');
-        });
-
-    return results
-        .map(
-          (session) => Session.fromMap(session),
-        )
-        .toList();
+      return results.map((session) => Session.fromMap(session)).toList();
   }
 
   Future<int> insertSession(AddSessionDto session) async {
-    final db = await _databaseService.database;
     try {
+      final db = await databaseService.database;
       final id = await db.insert("sessions", {
         'title': session.title,
         'description': session.description,
@@ -43,13 +42,13 @@ class SessionService {
   }
 
   Future<EditSessionDto> updateSession(EditSessionDto session) async {
-    final db = await _databaseService.database;
     try {
+      final db = await databaseService.database;
       await db.update(
         "sessions",
         {'title': session.title, 'description': session.description},
         where: 'id = ?',
-        whereArgs: [session.id]
+        whereArgs: [session.id],
       );
 
       return session;
@@ -59,19 +58,17 @@ class SessionService {
   }
 
   Future<void> deleteSession(int id) async {
-    final db = await _databaseService.database;
-
     try {
-      db.delete("sessions", where: 'id = ?', whereArgs: [id]);
+      final db = await databaseService.database;
+      await db.delete("sessions", where: 'id = ?', whereArgs: [id]);
     } catch (error) {
       throw Exception("Failed to delete session: $error");
     }
   }
 
   Future<Session> findOneById(int sessionId) async {
-    final db = await _databaseService.database;
-
     try {
+      final db = await databaseService.database;
       final List<Map<String, dynamic>> session = await db.query(
         "sessions",
         where: 'id = ?',

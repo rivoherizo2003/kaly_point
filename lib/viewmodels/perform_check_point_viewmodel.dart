@@ -30,18 +30,20 @@ class PerformCheckPointViewModel extends ChangeNotifier {
   bool _isLoadingMore = false;
   bool _hasMore = false;
   int _currentPage = 1;
+  bool _isListPersonsToServeRefreshed = false;
+  bool _isListPersonsServedRefreshed = false;
   final int _pageSize = 5;
   String? _errorMessage;
 
   bool _isLoadingServedPersons = false;
   bool _isLoadingMoreServedPersons = false;
-  bool _hasMoreServedPersons = false;
   int _currentPageServedPersons = 1;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isLoadingMore => _isLoadingMore;
-
+  bool get isListPersonsServedRefreshed => _isListPersonsServedRefreshed;
+  bool get isListPersonsToServeRefreshed => _isListPersonsToServeRefreshed;
   bool get isLoadingServedPersons => _isLoadingServedPersons;
   bool get isLoadingMoreServedPersons => _isLoadingMoreServedPersons;
 
@@ -56,6 +58,9 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
+    if (isListPersonsToServeRefreshed) return;
+
+    debugPrint("initializeTabToServePersons $isListPersonsToServeRefreshed");
     await fetchStateCheckPoint(
       sessionId: sessionId,
       checkPointId: checkPointId,
@@ -64,12 +69,17 @@ class PerformCheckPointViewModel extends ChangeNotifier {
 
     await fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
     notifyListeners();
+
+    _isListPersonsToServeRefreshed = true;
+    notifyListeners();
   }
 
   Future<void> initializeTabServedPersons({
     required int sessionId,
     required int checkPointId,
   }) async {
+    if (isListPersonsServedRefreshed) return;
+
     await fetchStateCheckPoint(
       sessionId: sessionId,
       checkPointId: checkPointId,
@@ -78,12 +88,16 @@ class PerformCheckPointViewModel extends ChangeNotifier {
 
     await fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
     notifyListeners();
+
+    _isListPersonsServedRefreshed = true;
+    notifyListeners();
   }
 
   Future<void> fetchStateCheckPoint({
     required int sessionId,
     required int checkPointId,
   }) async {
+    debugPrint("fetch state point");
     int nbrPersonInSession = await _performCheckPointSessionService
         .countPersonInSession(sessionId: sessionId);
     int nbrServedPersonCheckPoint = await _performCheckPointSessionService
@@ -149,7 +163,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
           lastname: person.lastname,
           firstname: person.firstname,
           checkPointId: checkPointId,
-          id: personCheckPoint.id,
+          checkPointPersonId: personCheckPoint.id,
         ),
       );
       notifyListeners();
@@ -189,19 +203,20 @@ class PerformCheckPointViewModel extends ChangeNotifier {
           lastname: person.lastname,
           firstname: person.firstname,
           checkPointId: checkPointId,
-          id: personCheckPoint.id,
+          checkPointPersonId: personCheckPoint.id,
         ),
       );
-      _personsToServe.remove(_personsToServe.where((s) => s.personId == person.id).first);
+      _personsToServe.remove(
+        _personsToServe.where((s) => s.personId == person.id).first,
+      );
       _errorMessage = null;
       notifyListeners();
     } catch (error) {
-      debugPrint("$error");
       _errorMessage =
           'Erreur lors de l\'affection de la personne à un pointage';
       notifyListeners();
     }
-    
+
     await fetchStateCheckPoint(
       sessionId: sessionId,
       checkPointId: checkPointId,
@@ -229,7 +244,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
-    if (_isLoadingMoreServedPersons || !_hasMoreServedPersons) return;
+    if (_isLoadingMoreServedPersons) return;
 
     _isLoadingMoreServedPersons = true;
     notifyListeners();
@@ -246,11 +261,11 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
+    debugPrint("to serve persons");
     _isLoading = true;
     _errorMessage = null;
-    _personsServed.clear();
+    _personsToServe.clear();
     notifyListeners();
-    debugPrint("Serve person $sessionId $_currentPage $_pageSize");
     try {
       final personsToServe = await _checkPointPersonService.fetchToServePersons(
         checkPointId: checkPointId,
@@ -266,7 +281,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     } catch (e) {
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes à servir';
-      debugPrint("person VM =>$e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -277,11 +291,11 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
+    debugPrint("fetch served persons");
     _isLoadingServedPersons = true;
     _errorMessage = null;
     _personsServed.clear();
     notifyListeners();
-    debugPrint("Served person $sessionId $_currentPage $_pageSize");
     try {
       final personsServed = await _checkPointPersonService.fetchServedPersons(
         checkPointId: checkPointId,
@@ -290,32 +304,35 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       if (personsServed.isNotEmpty) {
         _personsServed.addAll(personsServed);
-        _hasMoreServedPersons = true;
-      } else {
-        _hasMoreServedPersons = false;
       }
     } catch (e) {
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes servi';
-      debugPrint("personfdfd VM $e");
     } finally {
       _isLoadingServedPersons = false;
       notifyListeners();
     }
   }
 
-  Future<void> deletePersonCheckPoint(int checkPointPersonId, int sessionId, int checkPointId) async {
+  Future<void> deletePersonCheckPoint(
+    int checkPointPersonId,
+    int sessionId,
+    int checkPointId,
+  ) async {
+    debugPrint("deletePersonCheckPoint");
     try {
       await _checkPointPersonService.deleteCheckPointPerson(
-        checkPointPersonId: checkPointPersonId
+        checkPointPersonId: checkPointPersonId,
       );
-       _personsServed.remove(_personsServed.where((s) => s.id == checkPointPersonId).first);
+      _personsServed.remove(
+        _personsServed.where((s) => s.checkPointPersonId == checkPointPersonId).first,
+      );
       _errorMessage = null;
+      _isListPersonsToServeRefreshed = false;
       notifyListeners();
     } catch (e) {
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes servi';
-      debugPrint("personfdfd VM $e");
       notifyListeners();
     }
 

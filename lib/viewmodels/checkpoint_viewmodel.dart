@@ -10,7 +10,7 @@ class CheckpointViewmodel extends ChangeNotifier {
   final List<CheckPoint> _checkPoints = [];
   bool _isLoading = false;
   bool _isLoadingMore = false;
-  bool _hasMore = false;
+  bool _hasMore = true;
   int _currentPage = 1;
   final int _pageSize = 5;
   String? _errorMessage;
@@ -20,6 +20,7 @@ class CheckpointViewmodel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isLoadingMore => _isLoadingMore;
   String? get errorMessage => _errorMessage;
+  bool get hasMore => _hasMore;
 
 
   Future<void> initialize({required int sessionId, bool refresh = false}) async {
@@ -55,8 +56,6 @@ class CheckpointViewmodel extends ChangeNotifier {
   Future<void> fetchCheckPoints({required int sessionId}) async {
     _isLoading = true;
     _errorMessage = null;
-    _checkPoints.clear();
-    notifyListeners();
     try {
       final checkpoints = await _checkpointService.getCheckPoints(
         page: _currentPage,
@@ -65,16 +64,15 @@ class CheckpointViewmodel extends ChangeNotifier {
       );
       if (checkpoints.isNotEmpty) {
         _checkPoints.addAll(checkpoints);
-        _hasMore = true;
-      } else {
-        _hasMore = false;
       }
     } catch (e) {
       _errorMessage = 'Erreur lors de la récupération de la liste des pointages';
+      debugPrint("$e");
+    notifyListeners();
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
+    notifyListeners();
   }
 
   Future<void> deleteCheckpoint(int checkpointId, int sessionId) async {
@@ -130,6 +128,13 @@ class CheckpointViewmodel extends ChangeNotifier {
     } catch (e) {
       _errorMessage = 'Erreur lors de la mise à jour';
     }
+    notifyListeners();
+  }
+
+
+  /// Clear error message
+  void clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 }
