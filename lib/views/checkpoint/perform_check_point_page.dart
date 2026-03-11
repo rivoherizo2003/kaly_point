@@ -26,18 +26,34 @@ class PerformCheckPointPage extends StatefulWidget {
   State<PerformCheckPointPage> createState() => _PerformCheckPointPageState();
 }
 
-class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
+class _PerformCheckPointPageState extends State<PerformCheckPointPage>
+    with SingleTickerProviderStateMixin {
   Timer? _debounce;
   final TextEditingController _controllerSearch = TextEditingController();
+  late TabController _tabController;
+  int _indexTabActive = 0;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      _indexTabActive = _tabController.index;
+      if (_controllerSearch.value.text.isNotEmpty) {
+        context.read<PerformCheckPointViewModel>().searchPerson(
+          _controllerSearch.value.text,
+          widget.checkPoint.sessionId,
+          widget.checkPoint.id,
+          _indexTabActive,
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -52,12 +68,16 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
     );
   }
 
-  void _onSearchChanged(String query){
-    if(_debounce?.isActive ?? false) _debounce!.cancel();
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-    _debounce = Timer(const Duration(milliseconds: 500), (){
-    debugPrint("search $query");
-
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      context.read<PerformCheckPointViewModel>().searchPerson(
+        query,
+        widget.checkPoint.sessionId,
+        widget.checkPoint.id,
+        _indexTabActive,
+      );
     });
   }
 
@@ -82,13 +102,14 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                     children: [
                       const Text("Liste des personnes"),
                       TabBar(
+                        controller: _tabController,
                         labelColor: AppColors.primaryBlue,
                         unselectedLabelColor: Colors.grey,
                         indicatorColor: AppColors.primaryBlue,
                         indicatorWeight: 3,
                         tabs: [
                           Tab(
-                            child: Row(  
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const SizedBox(width: 8),
@@ -97,7 +118,10 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                                   label: Text(
                                     "${viewModel.stateCheckPoint.nbrPersonToServe}",
                                   ),
-                                  textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                  textStyle: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   backgroundColor: Colors.deepOrange.shade300,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 4,
@@ -118,7 +142,10 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                                   label: Text(
                                     "${viewModel.stateCheckPoint.nbrPersonServed}",
                                   ),
-                                  textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                  textStyle: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   backgroundColor: Colors.green,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 4,
@@ -145,7 +172,7 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                               Icons.search,
                               color: Colors.grey.shade600,
                             ),
-                            hintText: "Rechercher numéro_nom_prenom...",
+                            hintText: "Ex: 12 nom prenom",
                             hintStyle: TextStyle(color: Colors.grey.shade600),
                             filled: true,
                             fillColor: Colors.grey.shade200,
@@ -157,17 +184,27 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage> {
                               vertical: 0,
                               horizontal: 16,
                             ),
-                            suffixIcon: ValueListenableBuilder<TextEditingValue>(valueListenable: _controllerSearch, builder: (context, value, child){
-                              return value.text.isNotEmpty ? IconButton(onPressed: (){
-                                _controllerSearch.clear();
-                                _onSearchChanged('');
-                              }, icon: const Icon(Icons.clear)): const SizedBox.shrink(); 
-                            })
+                            suffixIcon:
+                                ValueListenableBuilder<TextEditingValue>(
+                                  valueListenable: _controllerSearch,
+                                  builder: (context, value, child) {
+                                    return value.text.isNotEmpty
+                                        ? IconButton(
+                                            onPressed: () {
+                                              _onSearchChanged('');
+                                              _controllerSearch.clear();
+                                            },
+                                            icon: const Icon(Icons.clear),
+                                          )
+                                        : const SizedBox.shrink();
+                                  },
+                                ),
                           ),
                         ),
                       ),
                       Expanded(
                         child: TabBarView(
+                          controller: _tabController,
                           children: <Widget>[
                             TabListToServePersonsPage(
                               checkPoint: widget.checkPoint,

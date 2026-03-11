@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kaly_point/dto/person_to_serve_dto.dart';
+import 'package:kaly_point/dto/person_check_point_dto.dart';
+import 'package:kaly_point/enums/person_state_check_point_enum.dart';
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
+import 'package:kaly_point/widgets/error_message.dart';
 import 'package:provider/provider.dart';
 
 class TabListToServePersonsPage extends StatefulWidget {
@@ -62,18 +64,33 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
     required int personId,
     required int sessionId,
     required String personFullname,
+    required bool isOutOfSession,
   }) async {
+    String message =
+        "Etes vous sur de valider le pointage de [$personFullname] ?";
+    if (isOutOfSession) {
+      message =
+          "[$personFullname] n'est pas dans cette session. Etes vous sur de l'ajouter à cette session et de valider son pointage?";
+    }
+
     final bool? confirmedDelete = await showDialog<bool>(
       context: context,
       builder: (context) => ConfirmDialog(
         title: "Valider pointage",
-        content: "Etes vous sur de valider le pointage de [$personFullname] ?",
+        content: message,
         confirmText: 'Pointer',
       ),
     );
 
     if (confirmedDelete == true) {
       if (!mounted) return;
+
+      if (isOutOfSession) {
+        context.read<PerformCheckPointViewModel>().assignPersonToSession(
+          personId: personId,
+          sessionId: widget.checkPoint.sessionId,
+        );
+      }
 
       context.read<PerformCheckPointViewModel>().assignPersonToCheckPoint(
         personId,
@@ -83,8 +100,12 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
 
       if (context.read<PerformCheckPointViewModel>().errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("${context.read<PerformCheckPointViewModel>().errorMessage}")),
-      );
+          SnackBar(
+            content: Text(
+              "${context.read<PerformCheckPointViewModel>().errorMessage}",
+            ),
+          ),
+        );
         return;
       }
 
@@ -100,6 +121,13 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
       builder: (BuildContext context, viewModel, _) {
         if (viewModel.isLoading) {
           return const Center(child: CircularProgressIndicator());
+        }
+
+        if (viewModel.errorMessage != null) {
+          return ErrorMessage(
+            errorMessage: viewModel.errorMessage,
+            callBackDismiss: () => {viewModel.clearError()},
+          );
         }
 
         return ListView.separated(
@@ -126,23 +154,23 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
               );
             }
 
-            final PersonToServeDto personToServeDto =
+            final PersonCheckPointDto personCheckPointDto =
                 viewModel.personsToServe[index];
+            final bool isOutOfSession = personCheckPointDto.sessionId == null;
+            final Color colorIconAndBtn = getColor(personCheckPointDto: personCheckPointDto);
 
             return ListTilePerson(
-              iconColor: Colors.deepOrange.shade300,
-              lastname: personToServeDto.lastname,
-              firstname: personToServeDto.firstname,
+              iconColor: colorIconAndBtn,
+              personCheckPointDto: personCheckPointDto,
               callBackTilePerson: () => _onClickAssignPerson(
-                personId: personToServeDto.personId,
+                personId: personCheckPointDto.personId,
                 sessionId: widget.checkPoint.sessionId,
                 personFullname:
-                    "${personToServeDto.firstname} ${personToServeDto.lastname}",
+                    "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
+                isOutOfSession: isOutOfSession,
               ),
-              personId: personToServeDto.personId,
-              icon: const Icon(Icons.check),
-              colorBtn: Colors.deepOrange.shade300,
-              foregroundColorBtn: Colors.deepOrange.shade300,
+              icon: Icon(getIcon(personCheckPointDto: personCheckPointDto)),
+              colorBtnAndForegroundBtn: colorIconAndBtn,
             );
           },
         );

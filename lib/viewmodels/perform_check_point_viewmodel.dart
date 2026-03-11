@@ -3,7 +3,6 @@ import 'package:kaly_point/dto/new_person_dto.dart';
 import 'package:kaly_point/dto/new_person_check_point_dto.dart';
 import 'package:kaly_point/dto/new_session_person_dto.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
-import 'package:kaly_point/dto/person_to_serve_dto.dart';
 import 'package:kaly_point/models/person.dart';
 import 'package:kaly_point/models/person_check_point.dart';
 import 'package:kaly_point/models/state_check_point.dart';
@@ -20,8 +19,8 @@ class PerformCheckPointViewModel extends ChangeNotifier {
   final CheckPointPersonService _checkPointPersonService =
       CheckPointPersonService();
 
-  final List<PersonToServeDto> _personsToServe = [];
-  List<PersonToServeDto> get personsToServe => _personsToServe;
+  final List<PersonCheckPointDto> _personsToServe = [];
+  List<PersonCheckPointDto> get personsToServe => _personsToServe;
 
   final List<PersonCheckPointDto> _personsServed = [];
   List<PersonCheckPointDto> get personsServed => _personsServed;
@@ -30,22 +29,27 @@ class PerformCheckPointViewModel extends ChangeNotifier {
   bool _isLoadingMore = false;
   bool _hasMore = false;
   int _currentPage = 1;
-  bool _isListPersonsToServeRefreshed = false;
-  bool _isListPersonsServedRefreshed = false;
-  final int _pageSize = 5;
+  final int _pageSize = 15;
   String? _errorMessage;
 
+
+  bool _isListPersonsToServeRefreshed = false;
+  bool _isListPersonsServedRefreshed = false;
   bool _isLoadingServedPersons = false;
   bool _isLoadingMoreServedPersons = false;
   int _currentPageServedPersons = 1;
+  bool _hasMoreServedPersons = false;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isLoadingMore => _isLoadingMore;
-  bool get isListPersonsServedRefreshed => _isListPersonsServedRefreshed;
   bool get isListPersonsToServeRefreshed => _isListPersonsToServeRefreshed;
+
+  bool get isListPersonsServedRefreshed => _isListPersonsServedRefreshed;
   bool get isLoadingServedPersons => _isLoadingServedPersons;
   bool get isLoadingMoreServedPersons => _isLoadingMoreServedPersons;
+  int get currentPageServedPersons => _currentPageServedPersons;
+  bool get hasMoreServedPersons => _hasMoreServedPersons;
 
   StateCheckPoint _stateCheckPoint = StateCheckPoint(
     nbrPersonInSession: 0,
@@ -131,19 +135,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     }
 
     //add this person to session
-    try {
-      await _sessionPersonService.assignPersonToSession(
-        NewSessionPersonDto(
-          personId: person.id,
-          sessionId: sessionId,
-          createdAt: DateTime.now(),
-        ),
-      );
-    } catch (error) {
-      _errorMessage = 'Erreur lors de l\'ajout de la personne sur une session';
-      notifyListeners();
-      return;
-    }
+    assignPersonToSession(personId: person.id, sessionId: sessionId);
 
     //add this person to check point of the session
     try {
@@ -206,9 +198,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
           checkPointPersonId: personCheckPoint.id,
         ),
       );
-      _personsToServe.remove(
-        _personsToServe.where((s) => s.personId == person.id).first,
-      );
+      _isListPersonsToServeRefreshed = false;
       _errorMessage = null;
       notifyListeners();
     } catch (error) {
@@ -264,13 +254,14 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     debugPrint("to serve persons");
     _isLoading = true;
     _errorMessage = null;
-    _personsToServe.clear();
     notifyListeners();
     try {
+      int offset = (_currentPage - 1) * _pageSize;
+      notifyListeners();
       final personsToServe = await _checkPointPersonService.fetchToServePersons(
         checkPointId: checkPointId,
-        page: _currentPage,
         limit: _pageSize,
+        offset: offset,
       );
       if (personsToServe.isNotEmpty) {
         _personsToServe.addAll(personsToServe);
@@ -279,6 +270,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
         _hasMore = false;
       }
     } catch (e) {
+      debugPrint("error $e");
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes à servir';
     } finally {
@@ -294,16 +286,20 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     debugPrint("fetch served persons");
     _isLoadingServedPersons = true;
     _errorMessage = null;
-    _personsServed.clear();
     notifyListeners();
     try {
+      int offset = (_currentPageServedPersons - 1) * _pageSize;
+      notifyListeners();
       final personsServed = await _checkPointPersonService.fetchServedPersons(
         checkPointId: checkPointId,
-        page: _currentPageServedPersons,
         limit: _pageSize,
+        offset: offset,
       );
       if (personsServed.isNotEmpty) {
         _personsServed.addAll(personsServed);
+        _hasMoreServedPersons = true;
+      } else {
+        _hasMoreServedPersons = false;
       }
     } catch (e) {
       _errorMessage =
@@ -325,7 +321,9 @@ class PerformCheckPointViewModel extends ChangeNotifier {
         checkPointPersonId: checkPointPersonId,
       );
       _personsServed.remove(
-        _personsServed.where((s) => s.checkPointPersonId == checkPointPersonId).first,
+        _personsServed
+            .where((s) => s.checkPointPersonId == checkPointPersonId)
+            .first,
       );
       _errorMessage = null;
       _isListPersonsToServeRefreshed = false;
@@ -340,5 +338,83 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       sessionId: sessionId,
       checkPointId: checkPointId,
     );
+  }
+
+  Future<void> searchPerson(
+    String query,
+    int sessionId,
+    int checkPointId,
+    int indexActiveTab,
+  ) async {
+    try {
+      if (query.isEmpty) {
+        handleEmptyQuerySearchByTab(sessionId, checkPointId, indexActiveTab);
+        return;
+      }
+      final searchResults = await _performCheckPointSessionService.searchPerson(
+        query,
+        indexActiveTab,
+        checkPointId,
+      );
+      handleSearchResultByTab(searchResults, indexActiveTab);
+    } catch (error) {
+      _errorMessage = "Erreur lors de la recherche d'une personne.";
+      notifyListeners();
+    }
+  }
+
+  void handleEmptyQuerySearchByTab(
+    int sessionId,
+    int checkPointId,
+    int indexActiveTab,
+  ) {
+    if (indexActiveTab == 0) {
+      _personsToServe.clear();
+        _isListPersonsToServeRefreshed = false;
+      fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
+      return;
+    }
+    _personsServed.clear();
+    _isListPersonsServedRefreshed = false;
+    fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
+  }
+
+  void handleSearchResultByTab(
+    List<PersonCheckPointDto> results,
+    int indexActiveTab,
+  ) {
+    if (indexActiveTab == 0) {
+      _personsToServe.clear();
+      _personsToServe.addAll(results);
+      notifyListeners();
+      return;
+    }
+    _personsServed.clear();
+    _personsServed.addAll(results);
+    notifyListeners();
+  }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  Future<void> assignPersonToSession({
+    required int personId,
+    required int sessionId,
+  }) async {
+    try {
+      await _sessionPersonService.assignPersonToSession(
+        NewSessionPersonDto(
+          personId: personId,
+          sessionId: sessionId,
+          createdAt: DateTime.now(),
+        ),
+      );
+    } catch (error) {
+      _errorMessage = 'Erreur lors de l\'ajout de la personne sur une session';
+      notifyListeners();
+      return;
+    }
   }
 }

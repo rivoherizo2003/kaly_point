@@ -1,25 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:kaly_point/dto/person_check_point_dto.dart';
 
 class ListTilePerson extends StatelessWidget {
-  final String? firstname;
-  final String lastname;
+  final PersonCheckPointDto personCheckPointDto;
   final VoidCallback callBackTilePerson;
-  final int personId;
-  final Widget icon;
-  final Color colorBtn;
-  final Color foregroundColorBtn;
   final Color iconColor;
+  final Color colorBtnAndForegroundBtn;
+  final Icon icon;
 
   const ListTilePerson({
     super.key,
-    required this.lastname,
-    this.firstname,
     required this.callBackTilePerson,
-    required this.personId,
-    required this.icon,
-    required this.colorBtn,
-    required this.foregroundColorBtn,
+    required this.personCheckPointDto,
     required this.iconColor,
+    required this.icon,
+    required this.colorBtnAndForegroundBtn,
   });
 
   @override
@@ -30,14 +25,14 @@ class ListTilePerson extends StatelessWidget {
       iconColor: iconColor,
       textColor: Colors.black,
       leading: const Icon(Icons.person),
-      title: Text("$lastname N°: $personId"),
-      subtitle: Text(firstname!),
+      title: Text("${personCheckPointDto.lastname} N°: ${personCheckPointDto.personId}"),
+      subtitle: Text(personCheckPointDto.firstname!),
       trailing: IconButton.outlined(
         onPressed: callBackTilePerson,
-        icon: icon, //const Icon(Icons.check),
+        icon: icon,
         style: IconButton.styleFrom(
-          side: BorderSide(color: colorBtn, width: 1),
-          foregroundColor: foregroundColorBtn,
+          side: BorderSide(color: colorBtnAndForegroundBtn, width: 1),
+          foregroundColor: colorBtnAndForegroundBtn,
         ),
       ),
     );

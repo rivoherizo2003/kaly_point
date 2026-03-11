@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
 import 'package:kaly_point/services/abstract_service.dart';
 import 'package:sqflite/sqflite.dart';
@@ -27,11 +28,80 @@ class PerformCheckpointSessionService extends AbstractService {
     return Sqflite.firstIntValue(await nbrServedPersons) ?? 0;
   }
 
-  Future<List<PersonCheckPointDto>> searchPerson(String query) async {
+  Future<List<PersonCheckPointDto>> searchPerson(String params, int indexActiveTab, int checkPointId) async {
     final db = await databaseService.database;
-    final searchResults = await db.rawQuery("SELECT * FROM persons");
+    final List<String> paramsSplit = params.trim().split(" ");
+    List<Object?> whereParams = [];
+
+    String query =
+        "SELECT p.id AS person_id, p.lastname,p.firstname, sp.id AS session_person_id, sp.session_id, cpp.check_point_id, cpp.id AS check_point_person_id  FROM person p LEFT JOIN session_person sp ON sp.person_id = p.id LEFT JOIN check_point_person cpp ON cpp.person_id = p.id";
+
+    String? whereQuery = "";
+
+    if (paramsSplit.elementAtOrNull(0) != null &&
+        int.tryParse(paramsSplit.elementAt(0)) != null) {
+      whereQuery += " p.id = ?";
+      whereParams.add(paramsSplit.elementAt(0));
+
+      if (paramsSplit.elementAtOrNull(1) != null &&
+          paramsSplit.elementAtOrNull(2) == null &&
+          paramsSplit.elementAt(1).isNotEmpty) {
+        whereQuery += whereQuery.isNotEmpty ? " AND " : " ";
+        whereQuery += "(p.lastname LIKE ? OR p.firstname LIKE ?)";
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(1)));
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(1)));
+      }
+
+      if (paramsSplit.elementAtOrNull(1) != null &&
+          paramsSplit.elementAtOrNull(2) != null &&
+          paramsSplit.elementAt(1).isNotEmpty &&
+          paramsSplit.elementAt(2).isNotEmpty) {
+        whereQuery += whereQuery.isNotEmpty ? " AND " : " ";
+        whereQuery +=
+            " ((p.lastname LIKE ? AND p.firstname LIKE ?) OR (p.firstname LIKE ? AND p.lastname LIKE ?))  ";
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(1)));
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(2)));
+
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(2)));
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(1)));
+      }
+    } else {
+      if (paramsSplit.elementAtOrNull(0) != null &&
+          paramsSplit.elementAtOrNull(1) == null) {
+        whereQuery += " p.lastname LIKE ?";
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(0)));
+      } else {
+        whereQuery += whereQuery.isNotEmpty ? " AND " : " ";
+        whereQuery +=
+            " ((p.lastname LIKE ? AND p.firstname LIKE ?) OR (p.firstname LIKE ? AND p.lastname LIKE ?))  ";
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(0)));
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(1)));
+
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(0)));
+        whereParams.add(formatParameterForLikeSearch(paramsSplit.elementAt(1)));
+      }
+    }
+
+    if(indexActiveTab == 1){
+      whereQuery += " AND cpp.check_point_id = ?";
+      whereParams.add(checkPointId);
+    }
+
+    if (whereQuery.isNotEmpty) {
+      query += " WHERE $whereQuery";
+    }
+
+    query += " GROUP BY p.id";
+
+    debugPrint(query);
+
+    final searchResults = await db.rawQuery(query, whereParams);
     return searchResults
         .map((result) => PersonCheckPointDto.fromMap(result))
         .toList();
+  }
+
+  String formatParameterForLikeSearch(String param) {
+    return "%$param%";
   }
 }

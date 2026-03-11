@@ -14,7 +14,7 @@ class SessionViewModel extends ChangeNotifier {
   bool _isLoadingMore = false;
   bool _hasMore = true;
   int _currentPage = 1;
-  final int _pageSize = 5;
+  final int _pageSize = 15;
   String? _errorMessage;
 
   // Getters

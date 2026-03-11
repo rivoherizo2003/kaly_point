@@ -4,6 +4,7 @@ import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
+import 'package:kaly_point/widgets/error_message.dart';
 import 'package:provider/provider.dart';
 
 class TabListServedPersonsPage extends StatefulWidget {
@@ -104,6 +105,10 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
           return const Center(child: CircularProgressIndicator());
         }
 
+        if(viewModel.errorMessage != null){
+          return ErrorMessage(errorMessage: viewModel.errorMessage, callBackDismiss: ()=> {viewModel.clearError()});
+        }
+
         return ListView.separated(
           separatorBuilder: (context, index) {
             return const Divider(
@@ -132,8 +137,7 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
                 viewModel.personsServed[index];
 
             return ListTilePerson(
-              lastname: personCheckPointDto.lastname,
-              firstname: personCheckPointDto.firstname,
+              personCheckPointDto: personCheckPointDto,
               callBackTilePerson: () => {
                 if (personCheckPointDto.checkPointPersonId != null)
                   _onClickUnassignPerson(
@@ -142,10 +146,8 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
                         "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
                   ),
               },
-              personId: personCheckPointDto.personId,
               icon: const Icon(Icons.undo),
-              colorBtn: Colors.green,
-              foregroundColorBtn: Colors.green,
+              colorBtnAndForegroundBtn: Colors.red.shade300,
               iconColor: Colors.green,
             );
           },
