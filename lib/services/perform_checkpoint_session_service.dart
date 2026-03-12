@@ -28,15 +28,22 @@ class PerformCheckpointSessionService extends AbstractService {
     return Sqflite.firstIntValue(await nbrServedPersons) ?? 0;
   }
 
-  Future<List<PersonCheckPointDto>> searchPerson(String params, int indexActiveTab, int checkPointId) async {
+  Future<List<PersonCheckPointDto>> searchPerson(
+    String params,
+    int indexActiveTab,
+    int checkPointId,
+    int currentSessionId,
+  ) async {
     final db = await databaseService.database;
     final List<String> paramsSplit = params.trim().split(" ");
     List<Object?> whereParams = [];
 
     String query =
-        "SELECT p.id AS person_id, p.lastname,p.firstname, sp.id AS session_person_id, sp.session_id, cpp.check_point_id, cpp.id AS check_point_person_id  FROM person p LEFT JOIN session_person sp ON sp.person_id = p.id LEFT JOIN check_point_person cpp ON cpp.person_id = p.id";
+        "SELECT p.id AS person_id, p.lastname,p.firstname, sp.id AS session_person_id, cpp.id AS check_point_person_id, (SELECT sp1.session_id  FROM session_person sp1 WHERE sp1.session_id = ?) as current_session_id, (SELECT id FROM check_point_person cpp2 WHERE cpp2.check_point_id  = ? AND cpp2.person_id = p.id) AS check_point_person_id  FROM person p LEFT JOIN session_person sp ON sp.person_id = p.id LEFT JOIN check_point_person cpp ON cpp.person_id = p.id";
 
     String? whereQuery = "";
+    whereParams.add(currentSessionId);
+    whereParams.add(checkPointId);
 
     if (paramsSplit.elementAtOrNull(0) != null &&
         int.tryParse(paramsSplit.elementAt(0)) != null) {
@@ -82,7 +89,7 @@ class PerformCheckpointSessionService extends AbstractService {
       }
     }
 
-    if(indexActiveTab == 1){
+    if (indexActiveTab == 1) {
       whereQuery += " AND cpp.check_point_id = ?";
       whereParams.add(checkPointId);
     }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
-import 'package:kaly_point/enums/person_state_check_point_enum.dart';
 import 'package:kaly_point/models/check_point.dart';
+import 'package:kaly_point/models/person.dart';
+import 'package:kaly_point/models/person_check_point.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
@@ -156,21 +157,23 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
 
             final PersonCheckPointDto personCheckPointDto =
                 viewModel.personsToServe[index];
-            final bool isOutOfSession = personCheckPointDto.sessionId == null;
-            final Color colorIconAndBtn = getColor(personCheckPointDto: personCheckPointDto);
+            final bool isOutOfSession = personCheckPointDto.currentSessionId == null;
+            final Color colorIconAndBtn = PersonCheckPoint.getColor(personCheckPointDto, widget.checkPoint);
 
+debugPrint("${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}");
             return ListTilePerson(
               iconColor: colorIconAndBtn,
               personCheckPointDto: personCheckPointDto,
-              callBackTilePerson: () => _onClickAssignPerson(
+              callBackTilePerson: Person.inSessionAndServed(personCheckPointDto, widget.checkPoint)? () => {} : () => _onClickAssignPerson(
                 personId: personCheckPointDto.personId,
                 sessionId: widget.checkPoint.sessionId,
                 personFullname:
                     "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
                 isOutOfSession: isOutOfSession,
               ),
-              icon: Icon(getIcon(personCheckPointDto: personCheckPointDto)),
+              icon: Icon(PersonCheckPoint.getIcon(personCheckPointDto, widget.checkPoint)),
               colorBtnAndForegroundBtn: colorIconAndBtn,
+              borderBtnColor: Colors.transparent,
             );
           },
         );

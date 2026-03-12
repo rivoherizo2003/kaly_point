@@ -1,7 +1,7 @@
 class PersonCheckPointDto {
   int personId;
   int? checkPointId;
-  int? sessionId;
+  int? currentSessionId;
   int? checkPointPersonId;
   String lastname;
   String? firstname;
@@ -9,7 +9,7 @@ class PersonCheckPointDto {
   PersonCheckPointDto({
     required this.personId,
     this.checkPointId,
-    this.sessionId,
+    this.currentSessionId,
     this.checkPointPersonId,
     required this.lastname,
     this.firstname,
@@ -22,7 +22,7 @@ class PersonCheckPointDto {
       lastname: map['lastname'],
       firstname: map['firstname'],
       checkPointId: map['check_point_id'],
-      sessionId: map['session_id'],
+      currentSessionId: map['current_session_id'],
     );
   }
 }

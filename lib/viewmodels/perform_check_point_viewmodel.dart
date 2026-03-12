@@ -355,10 +355,12 @@ class PerformCheckPointViewModel extends ChangeNotifier {
         query,
         indexActiveTab,
         checkPointId,
+        sessionId
       );
       handleSearchResultByTab(searchResults, indexActiveTab);
     } catch (error) {
       _errorMessage = "Erreur lors de la recherche d'une personne.";
+      debugPrint("$error");
       notifyListeners();
     }
   }

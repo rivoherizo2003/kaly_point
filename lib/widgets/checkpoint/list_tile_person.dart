@@ -7,6 +7,8 @@ class ListTilePerson extends StatelessWidget {
   final Color iconColor;
   final Color colorBtnAndForegroundBtn;
   final Icon icon;
+  
+  final Color? borderBtnColor;
 
   const ListTilePerson({
     super.key,
@@ -15,6 +17,7 @@ class ListTilePerson extends StatelessWidget {
     required this.iconColor,
     required this.icon,
     required this.colorBtnAndForegroundBtn,
+    this.borderBtnColor
   });
 
   @override
@@ -31,7 +34,7 @@ class ListTilePerson extends StatelessWidget {
         onPressed: callBackTilePerson,
         icon: icon,
         style: IconButton.styleFrom(
-          side: BorderSide(color: colorBtnAndForegroundBtn, width: 1),
+          side: BorderSide(color: borderBtnColor == null?colorBtnAndForegroundBtn:Colors.transparent, width: 1),
           foregroundColor: colorBtnAndForegroundBtn,
         ),
       ),

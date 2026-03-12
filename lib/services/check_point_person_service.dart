@@ -55,7 +55,7 @@ class CheckPointPersonService extends AbstractService {
       lastname: map['lastname'],
       firstname: map['firstname'],
       checkPointId: map['check_point_id'],
-      sessionId: map['session_id']
+      currentSessionId: map['session_id']
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
 import 'package:kaly_point/enums/person_state_check_point_enum.dart';
+import 'package:kaly_point/models/check_point.dart';
 
 class PersonCheckPoint {
   int id;
@@ -17,9 +18,9 @@ class PersonCheckPoint {
     required this.createdAt,
   });
 
-  IconData getIcon(PersonCheckPointDto personCheckPointDto) =>
-    PersonStateCheckPointEnum.fromDto(personCheckPointDto).icon;
+  static IconData getIcon(PersonCheckPointDto personCheckPointDto, CheckPoint currentCheckPoint) =>
+    PersonStateCheckPointEnum.fromDto(personCheckPointDto, currentCheckPoint).icon;
 
-  Color getColor(PersonCheckPointDto personCheckPointDto) => 
-    PersonStateCheckPointEnum.fromDto(personCheckPointDto).color;
+  static Color getColor(PersonCheckPointDto personCheckPointDto, CheckPoint currentCheckPoint) => 
+    PersonStateCheckPointEnum.fromDto(personCheckPointDto, currentCheckPoint).color;
 }
