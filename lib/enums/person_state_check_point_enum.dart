@@ -28,7 +28,6 @@ enum PersonStateCheckPointEnum {
     if (Person.inSessionAndServed(personCheckPointDto, currentCheckPoint)) {
       return PersonStateCheckPointEnum.inSessionAndServed;
     }
-    debugPrint("${personCheckPointDto.currentSessionId} ${personCheckPointDto.checkPointPersonId}");
 
     return PersonStateCheckPointEnum.noState;
   }

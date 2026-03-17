@@ -147,7 +147,7 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
                   ),
               },
               icon: const Icon(Icons.undo),
-              colorBtnAndForegroundBtn: Colors.red.shade300,
+              colorBtnAndForegroundBtn: Colors.green,
               iconColor: Colors.green,
             );
           },

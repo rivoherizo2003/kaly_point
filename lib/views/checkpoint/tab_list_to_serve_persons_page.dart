@@ -116,6 +116,8 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
     }
   }
 
+  void _onClickDeletePerson(PersonCheckPointDto personCheckPointDto) {}
+
   @override
   Widget build(BuildContext context) {
     return Consumer<PerformCheckPointViewModel>(
@@ -173,11 +175,12 @@ debugPrint("${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessi
               ),
               icon: Icon(PersonCheckPoint.getIcon(personCheckPointDto, widget.checkPoint)),
               colorBtnAndForegroundBtn: colorIconAndBtn,
-              borderBtnColor: Colors.transparent,
+              borderBtnColor: null,
             );
           },
         );
       },
     );
   }
+  
 }

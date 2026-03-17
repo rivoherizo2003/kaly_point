@@ -29,12 +29,10 @@
 
 ### Recherche
 
-[] Dans le résultat des recherches de personne il faut y mettre les boutons:
+[x] Dans le résultat des recherches de personne il faut y mettre les boutons:
 
 - [x] Affectation au pointage (si pas encore pointé)
-- [] Si recherche dans la tab "A servir" d'une personne déja pointé il faut juste affiche que la personne est déja pointé
-- [] Modification infos d'une personne
-- [] Suppression d'une personne: Si appartenant a aucune session autorisé la suppression
+- [x] Si recherche dans la tab "A servir" d'une personne déja pointé il faut juste affiche que la personne est déja pointé
 
 ### Gestion des personnes
 

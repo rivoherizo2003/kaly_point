@@ -32,7 +32,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
   final int _pageSize = 15;
   String? _errorMessage;
 
-
   bool _isListPersonsToServeRefreshed = false;
   bool _isListPersonsServedRefreshed = false;
   bool _isLoadingServedPersons = false;
@@ -355,7 +354,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
         query,
         indexActiveTab,
         checkPointId,
-        sessionId
+        sessionId,
       );
       handleSearchResultByTab(searchResults, indexActiveTab);
     } catch (error) {
@@ -370,14 +369,14 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     int checkPointId,
     int indexActiveTab,
   ) {
+    _isListPersonsServedRefreshed = false;
+    _isListPersonsToServeRefreshed = false;
     if (indexActiveTab == 0) {
       _personsToServe.clear();
-        _isListPersonsToServeRefreshed = false;
       fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
       return;
     }
     _personsServed.clear();
-    _isListPersonsServedRefreshed = false;
     fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
   }
 
