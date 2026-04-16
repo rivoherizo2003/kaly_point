@@ -210,13 +210,15 @@ class _CheckPointsPageState extends State<CheckPointsPage>
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.small(
         onPressed: _createNewCheckPoint,
         tooltip: 'Création pointage',
         foregroundColor: Colors.white,
         backgroundColor: Colors.brown.withAlpha(450),
         child: const Icon(Icons.add),
+        
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

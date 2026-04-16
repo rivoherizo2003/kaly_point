@@ -100,7 +100,6 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
                 Expanded(
                   child: Column(
                     children: [
-                      const Text("Liste des personnes"),
                       TabBar(
                         controller: _tabController,
                         labelColor: AppColors.primaryBlue,
@@ -224,13 +223,14 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
             );
           },
         ),
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton: FloatingActionButton.small(
           onPressed: _addNewPerson,
           tooltip: 'Ajouter une personne',
           foregroundColor: Colors.white,
-          backgroundColor: Colors.primaries.first.shade200,
+          backgroundColor: Colors.grey.withAlpha(450),
           child: const Icon(Icons.add),
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }

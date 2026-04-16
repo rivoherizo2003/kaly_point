@@ -5,18 +5,19 @@ import 'package:kaly_point/models/person.dart';
 
 enum PersonStateCheckPointEnum {
   notInSession(Icons.person_add_alt_1, Colors.blue),
-  inSessionNotServed(Icons.assignment_add, Color(0xFFFFAB91)),
+  inSessionNotServed(Icons.fact_check, Color(0xFFFFAB91)),
   inSessionAndServed(Icons.done_all, Colors.green),
   noState(Icons.question_mark, Colors.grey);
 
   final IconData icon;
   final Color color;
   const PersonStateCheckPointEnum(this.icon, this.color);
-
+                                                                                                                                              
   static PersonStateCheckPointEnum fromDto(
     PersonCheckPointDto personCheckPointDto,
     CheckPoint currentCheckPoint
   ) {
+    debugPrint("${personCheckPointDto.personId} ${personCheckPointDto.currentSessionId} == ${currentCheckPoint.sessionId}");
     if (Person.isNotInSession(personCheckPointDto, currentCheckPoint)) {
       return PersonStateCheckPointEnum.notInSession;
     }

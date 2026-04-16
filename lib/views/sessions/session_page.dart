@@ -192,13 +192,14 @@ class _SessionPageState extends State<SessionPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.small(
         onPressed: _createNewSession,
         tooltip: 'Création Session',
         foregroundColor: Colors.white,
         backgroundColor: Colors.amber.withAlpha(450),
         child: const Icon(Icons.add),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

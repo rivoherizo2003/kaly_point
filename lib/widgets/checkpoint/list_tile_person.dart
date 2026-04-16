@@ -19,61 +19,67 @@ class ListTilePerson extends StatelessWidget {
     this.borderBtnColor,
   });
 
-
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      enabled: true,
-      selected: false,
-      textColor: Colors.black,
-      leading: Icon(Icons.person,color: iconColor),
-      title: Text(
-        "${personCheckPointDto.lastname} N°: ${personCheckPointDto.personId}",
+    return Dismissible(
+      key: ValueKey(personCheckPointDto.personId),
+      direction: DismissDirection.horizontal,
+      background: Container(
+        color: Colors.blue.shade200,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: const Icon(Icons.edit, color: Colors.white),
       ),
-      subtitle: Text(personCheckPointDto.firstname!),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton.outlined(
-            onPressed: () => {},
-            icon: const Icon(Icons.delete),
-            style: IconButton.styleFrom(
-              side: BorderSide(
-                color: Colors.red.shade200,
-                width: 1,
+      secondaryBackground: Container(
+        color: Colors.red.shade200,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (DismissDirection direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          callBackTilePerson();
+
+          return false;
+        } else if (direction == DismissDirection.endToStart) {
+          debugPrint("suppression");
+
+          return false;
+        }
+      },
+      onDismissed: (direction) {
+        if (direction == DismissDirection.endToStart) {
+          debugPrint("effectuer la suppression");
+        }
+      },
+      child: ListTile(
+        enabled: true,
+        selected: false,
+        textColor: Colors.black,
+        leading: Icon(Icons.person, color: iconColor),
+        title: Text(
+          "${personCheckPointDto.lastname} N°: ${personCheckPointDto.personId}",
+        ),
+        subtitle: Text(personCheckPointDto.firstname!),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton.outlined(
+              onPressed: callBackTilePerson,
+              icon: icon,
+              style: IconButton.styleFrom(
+                side: BorderSide(
+                  color: borderBtnColor == null
+                      ? colorBtnAndForegroundBtn
+                      : Colors.transparent,
+                  width: 1,
+                ),
+                foregroundColor: colorBtnAndForegroundBtn,
               ),
-              foregroundColor: Colors.red.shade200,
             ),
-          ),
-          const SizedBox(width: 3,),
-          IconButton.outlined(
-            onPressed: callBackTilePerson,
-            icon: const Icon(Icons.edit),
-            style: IconButton.styleFrom(
-              side: BorderSide(
-                color: Colors.blue.shade200,
-                width: 1,
-              ),
-              foregroundColor: Colors.blue.shade200,
-            ),
-          ),
-          const SizedBox(width: 20,),
-          IconButton.outlined(
-            onPressed: callBackTilePerson,
-            icon: icon,
-            style: IconButton.styleFrom(
-              side: BorderSide(
-                color: borderBtnColor == null
-                    ? colorBtnAndForegroundBtn
-                    : Colors.transparent,
-                width: 1,
-              ),
-              foregroundColor: colorBtnAndForegroundBtn,
-            ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
-  
 }

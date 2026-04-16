@@ -3,6 +3,7 @@ class PersonCheckPointDto {
   int? checkPointId;
   int? currentSessionId;
   int? checkPointPersonId;
+  int? personSessionId;
   String lastname;
   String? firstname;
 

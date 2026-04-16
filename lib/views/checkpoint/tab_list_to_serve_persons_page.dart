@@ -162,7 +162,7 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
             final bool isOutOfSession = personCheckPointDto.currentSessionId == null;
             final Color colorIconAndBtn = PersonCheckPoint.getColor(personCheckPointDto, widget.checkPoint);
 
-debugPrint("${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}");
+debugPrint("${personCheckPointDto.lastname} ${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}");
             return ListTilePerson(
               iconColor: colorIconAndBtn,
               personCheckPointDto: personCheckPointDto,

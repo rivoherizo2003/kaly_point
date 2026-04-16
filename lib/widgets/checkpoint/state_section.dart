@@ -45,7 +45,7 @@ class StateSection extends StatelessWidget {
   }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 22),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
           border: Border.all(color: borderCardColor),
           borderRadius: BorderRadius.circular(12),
