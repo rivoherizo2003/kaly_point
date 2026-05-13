@@ -9,14 +9,21 @@ import 'package:kaly_point/widgets/confirm_dialog.dart';
 import 'package:kaly_point/widgets/error_message.dart';
 import 'package:provider/provider.dart';
 
+typedef OnDeletePersonCallback = Future<void> Function(PersonCheckPointDto);
+typedef OnEditPersonCallback = Future<void> Function(PersonCheckPointDto);
+
 class TabListToServePersonsPage extends StatefulWidget {
   final String sessionTitle;
   final CheckPoint checkPoint;
+  final OnDeletePersonCallback callBackDeletePerson;
+  final OnEditPersonCallback callBackEditPerson;
 
   const TabListToServePersonsPage({
     super.key,
     required this.checkPoint,
     required this.sessionTitle,
+    required this.callBackDeletePerson,
+    required this.callBackEditPerson,
   });
 
   @override
@@ -74,7 +81,7 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
           "[$personFullname] n'est pas dans cette session. Etes vous sur de l'ajouter à cette session et de valider son pointage?";
     }
 
-    final bool? confirmedDelete = await showDialog<bool>(
+    final bool? confirmedAssignPerson = await showDialog<bool>(
       context: context,
       builder: (context) => ConfirmDialog(
         title: "Valider pointage",
@@ -83,7 +90,7 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
       ),
     );
 
-    if (confirmedDelete == true) {
+    if (confirmedAssignPerson == true) {
       if (!mounted) return;
 
       if (isOutOfSession) {
@@ -115,8 +122,6 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
       );
     }
   }
-
-  void _onClickDeletePerson(PersonCheckPointDto personCheckPointDto) {}
 
   @override
   Widget build(BuildContext context) {
@@ -159,28 +164,47 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
 
             final PersonCheckPointDto personCheckPointDto =
                 viewModel.personsToServe[index];
-            final bool isOutOfSession = personCheckPointDto.currentSessionId == null;
-            final Color colorIconAndBtn = PersonCheckPoint.getColor(personCheckPointDto, widget.checkPoint);
+            final bool isOutOfSession =
+                personCheckPointDto.currentSessionId == null;
+            final Color colorIconAndBtn = PersonCheckPoint.getColor(
+              personCheckPointDto,
+              widget.checkPoint,
+            );
 
-debugPrint("${personCheckPointDto.lastname} ${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}");
+            debugPrint(
+              "build tab_list_to_serve_persons_page ${personCheckPointDto.lastname} ${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}",
+            );
             return ListTilePerson(
               iconColor: colorIconAndBtn,
               personCheckPointDto: personCheckPointDto,
-              callBackTilePerson: Person.inSessionAndServed(personCheckPointDto, widget.checkPoint)? () => {} : () => _onClickAssignPerson(
-                personId: personCheckPointDto.personId,
-                sessionId: widget.checkPoint.sessionId,
-                personFullname:
-                    "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
-                isOutOfSession: isOutOfSession,
+              callBackTilePerson:
+                  Person.inSessionAndServed(
+                    personCheckPointDto,
+                    widget.checkPoint,
+                  )
+                  ? () => {}
+                  : () => _onClickAssignPerson(
+                      personId: personCheckPointDto.personId,
+                      sessionId: widget.checkPoint.sessionId,
+                      personFullname:
+                          "${personCheckPointDto.firstname} ${personCheckPointDto.lastname}",
+                      isOutOfSession: isOutOfSession,
+                    ),
+              icon: Icon(
+                PersonCheckPoint.getIcon(
+                  personCheckPointDto,
+                  widget.checkPoint,
+                ),
               ),
-              icon: Icon(PersonCheckPoint.getIcon(personCheckPointDto, widget.checkPoint)),
               colorBtnAndForegroundBtn: colorIconAndBtn,
               borderBtnColor: null,
+              callBackEndToStart: () =>
+                  widget.callBackDeletePerson(personCheckPointDto),
+              callBackStartToEnd: () => widget.callBackEditPerson(personCheckPointDto),
             );
           },
         );
       },
     );
   }
-  
 }

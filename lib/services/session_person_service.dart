@@ -1,3 +1,4 @@
+import 'package:kaly_point/dto/edit_person_dto.dart';
 import 'package:kaly_point/dto/new_session_person_dto.dart';
 import 'package:kaly_point/models/session_person.dart';
 import 'package:kaly_point/services/abstract_service.dart';
@@ -22,6 +23,31 @@ class SessionPersonService extends AbstractService {
       );
     } catch (error) {
       throw Exception("Failed to insert person in session: $error");
+    }
+  }
+
+  Future<void> deletePerson({required int personId}) async {
+    try {
+      final db = await databaseService.database;
+      await db.delete("person", where: 'id = ?', whereArgs: [personId]);
+    } catch (error) {
+      throw Exception("Failed to delete person:$error");
+    }
+  }
+
+  Future<EditPersonDto> updatePerson(EditPersonDto editPersonDto) async {
+    try {
+      final db =  await databaseService.database;
+      await db.update("person", {
+        'lastname':editPersonDto.lastname,
+        'firstname':editPersonDto.firstname,
+      },
+      where: 'id = ?',
+      whereArgs: [editPersonDto.id]);
+
+      return editPersonDto;
+    } catch (error) {
+      throw Exception("Failed to update person: $error");
     }
   }
 }

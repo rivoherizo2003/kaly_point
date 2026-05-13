@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaly_point/dto/edit_person_dto.dart';
 import 'package:kaly_point/dto/new_person_dto.dart';
 import 'package:kaly_point/dto/new_person_check_point_dto.dart';
 import 'package:kaly_point/dto/new_session_person_dto.dart';
@@ -61,19 +62,18 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
+    debugPrint("initializeTabToServePersons $isListPersonsToServeRefreshed");
     if (isListPersonsToServeRefreshed) return;
 
-    debugPrint("initializeTabToServePersons $isListPersonsToServeRefreshed");
     await fetchStateCheckPoint(
       sessionId: sessionId,
       checkPointId: checkPointId,
     );
-    notifyListeners();
+
+    _personsToServe.clear();
+    _currentPage = 1;
 
     await fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
-    notifyListeners();
-
-    _isListPersonsToServeRefreshed = true;
     notifyListeners();
   }
 
@@ -81,16 +81,20 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
+    debugPrint(
+      "initializeTabServedPersons $isListPersonsServedRefreshed ${_personsServed.length}",
+    );
+
     if (isListPersonsServedRefreshed) return;
 
     await fetchStateCheckPoint(
       sessionId: sessionId,
       checkPointId: checkPointId,
     );
-    notifyListeners();
 
+    _personsServed.clear();
+    _currentPageServedPersons = 1;
     await fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
-    notifyListeners();
 
     _isListPersonsServedRefreshed = true;
     notifyListeners();
@@ -114,7 +118,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       nbrPersonServed: nbrServedPersonCheckPoint,
       nbrPersonToServe: (nbrPersonInSession - nbrServedPersonCheckPoint),
     );
-    notifyListeners();
   }
 
   Future<void> assignNewPersonToCheckPointAndSession(
@@ -126,11 +129,10 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     _errorMessage = null;
     try {
       person = await _personService.insertPerson(newPerson);
-      notifyListeners();
     } catch (error) {
       _errorMessage = 'Erreur lors de la création d\'une personne';
+    } finally {
       notifyListeners();
-      return;
     }
 
     //add this person to session
@@ -157,12 +159,11 @@ class PerformCheckPointViewModel extends ChangeNotifier {
           checkPointPersonId: personCheckPoint.id,
         ),
       );
-      notifyListeners();
     } catch (error) {
       _errorMessage =
           'Erreur lors de l\'affection de la personne à un pointage';
+    } finally {
       notifyListeners();
-      return;
     }
 
     await fetchStateCheckPoint(
@@ -219,10 +220,9 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     if (_isLoadingMore || !_hasMore) return;
 
     _isLoadingMore = true;
-    notifyListeners();
-
     _currentPage++;
     notifyListeners();
+
     await fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
 
     _isLoadingMore = false;
@@ -236,10 +236,9 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     if (_isLoadingMoreServedPersons) return;
 
     _isLoadingMoreServedPersons = true;
-    notifyListeners();
-
     _currentPageServedPersons++;
     notifyListeners();
+
     await fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
 
     _isLoadingMoreServedPersons = false;
@@ -250,13 +249,11 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
-    debugPrint("to serve persons");
+    debugPrint("fetchToServePersons");
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners();
     try {
       int offset = (_currentPage - 1) * _pageSize;
-      notifyListeners();
       final personsToServe = await _checkPointPersonService.fetchToServePersons(
         checkPointId: checkPointId,
         limit: _pageSize,
@@ -265,16 +262,16 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       if (personsToServe.isNotEmpty) {
         _personsToServe.addAll(personsToServe);
         _hasMore = true;
+        _isListPersonsToServeRefreshed = true;
+        notifyListeners();
       } else {
         _hasMore = false;
       }
     } catch (e) {
-      debugPrint("error $e");
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes à servir';
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
@@ -285,18 +282,18 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     debugPrint("fetch served persons");
     _isLoadingServedPersons = true;
     _errorMessage = null;
-    notifyListeners();
     try {
       int offset = (_currentPageServedPersons - 1) * _pageSize;
-      notifyListeners();
       final personsServed = await _checkPointPersonService.fetchServedPersons(
         checkPointId: checkPointId,
         limit: _pageSize,
         offset: offset,
       );
+      debugPrint("ici ${personsServed.length}");
       if (personsServed.isNotEmpty) {
         _personsServed.addAll(personsServed);
         _hasMoreServedPersons = true;
+        notifyListeners();
       } else {
         _hasMoreServedPersons = false;
       }
@@ -305,7 +302,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
           'Erreur lors de la récupération de la liste des personnes servi';
     } finally {
       _isLoadingServedPersons = false;
-      notifyListeners();
     }
   }
 
@@ -326,10 +322,10 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       _errorMessage = null;
       _isListPersonsToServeRefreshed = false;
-      notifyListeners();
     } catch (e) {
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes servi';
+    } finally {
       notifyListeners();
     }
 
@@ -369,15 +365,26 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     int checkPointId,
     int indexActiveTab,
   ) {
-    _isListPersonsServedRefreshed = false;
-    _isListPersonsToServeRefreshed = false;
+    debugPrint("handleEmptyQuerySearchByTab indexActiveTab $indexActiveTab");
     if (indexActiveTab == 0) {
       _personsToServe.clear();
+      _currentPage = 1;
+      debugPrint(
+        "handleEmptyQuerySearchByTab _personsToServe ${_personsToServe.length}",
+      );
       fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
+      _isListPersonsToServeRefreshed = false;
+      notifyListeners();
       return;
     }
     _personsServed.clear();
+    _currentPageServedPersons = 1;
     fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
+    _isListPersonsServedRefreshed = false;
+    notifyListeners();
+    debugPrint(
+      "handleEmptyQuerySearchByTab _personsServed ${_personsServed.length}",
+    );
   }
 
   void handleSearchResultByTab(
@@ -385,12 +392,14 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     int indexActiveTab,
   ) {
     if (indexActiveTab == 0) {
+      _currentPage = 0;
       _personsToServe.clear();
       _personsToServe.addAll(results);
       notifyListeners();
       return;
     }
     _personsServed.clear();
+
     _personsServed.addAll(results);
     notifyListeners();
   }
@@ -416,6 +425,82 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       _errorMessage = 'Erreur lors de l\'ajout de la personne sur une session';
       notifyListeners();
       return;
+    }
+  }
+
+  Future<void> deletePerson({
+    required int personId,
+    required int indexTabActive,
+  }) async {
+    try {
+      await _sessionPersonService.deletePerson(personId: personId);
+      if (indexTabActive == 0) {
+        _personsToServe.removeWhere(
+          (personCheckPointDto) => personCheckPointDto.personId == personId,
+        );
+        notifyListeners();
+
+        return;
+      }
+
+      _personsServed.removeWhere(
+        (personCheckPointDto) => personCheckPointDto.personId == personId,
+      );
+      notifyListeners();
+    } catch (error) {
+      _errorMessage = 'Erreur lors de la suppression de la personne';
+      notifyListeners();
+      return;
+    }
+  }
+
+  Future<EditPersonDto> savePerson({
+    required EditPersonDto editPersonDto,
+    required int indexTabActive,
+  }) async {
+    try {
+      final personDto = await _sessionPersonService.updatePerson(editPersonDto);
+      _updateListPerson(indexTabActive, editPersonDto);
+      _errorMessage = null;
+      notifyListeners();
+
+      return personDto;
+    } catch (error) {
+      _errorMessage = "Erreur lors du sauvegarde";
+      notifyListeners();
+    }
+
+    return editPersonDto;
+  }
+
+  void _updateListPerson(int indexTabActive, EditPersonDto editPersonDto) {
+    if (indexTabActive == 0) {
+      final index = _personsToServe.indexWhere(
+        (s) => s.personId == editPersonDto.id,
+      );
+      if (index != -1) {
+        final person = _personsToServe[index];
+        _personsToServe[index] = PersonCheckPointDto(
+          personId: editPersonDto.id,
+          lastname: person.lastname,
+          firstname: editPersonDto.firstname,
+        );
+        notifyListeners();
+      }
+      return;
+    }
+
+    final index = _personsServed.indexWhere(
+      (s) => s.personId == editPersonDto.id,
+    );
+    if (index != -1) {
+      final person = _personsServed[index];
+      _personsServed[index] = PersonCheckPointDto(
+        personId: editPersonDto.id,
+        lastname: person.lastname,
+        firstname: editPersonDto.firstname,
+      );
+      notifyListeners();
     }
   }
 }

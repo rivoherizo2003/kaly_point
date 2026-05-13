@@ -17,8 +17,7 @@ enum PersonStateCheckPointEnum {
     PersonCheckPointDto personCheckPointDto,
     CheckPoint currentCheckPoint
   ) {
-    debugPrint("${personCheckPointDto.personId} ${personCheckPointDto.currentSessionId} == ${currentCheckPoint.sessionId}");
-    if (Person.isNotInSession(personCheckPointDto, currentCheckPoint)) {
+    if (Person.isNotInSession(personCheckPointDto)) {
       return PersonStateCheckPointEnum.notInSession;
     }
 

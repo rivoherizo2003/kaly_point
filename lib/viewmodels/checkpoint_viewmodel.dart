@@ -22,8 +22,10 @@ class CheckpointViewmodel extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   bool get hasMore => _hasMore;
 
-
-  Future<void> initialize({required int sessionId, bool refresh = false}) async {
+  Future<void> initialize({
+    required int sessionId,
+    bool refresh = false,
+  }) async {
     if (refresh) {
       _currentPage = 1;
       _hasMore = true;
@@ -34,7 +36,7 @@ class CheckpointViewmodel extends ChangeNotifier {
       notifyListeners();
     }
 
-    await fetchCheckPoints(sessionId:sessionId);
+    await fetchCheckPoints(sessionId: sessionId);
     _isLoading = false;
     notifyListeners();
   }
@@ -52,7 +54,7 @@ class CheckpointViewmodel extends ChangeNotifier {
     _isLoadingMore = false;
     notifyListeners();
   }
-  
+
   Future<void> fetchCheckPoints({required int sessionId}) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,27 +62,29 @@ class CheckpointViewmodel extends ChangeNotifier {
       final checkpoints = await _checkpointService.getCheckPoints(
         page: _currentPage,
         limit: _pageSize,
-        sessionId: sessionId
+        sessionId: sessionId,
       );
       if (checkpoints.isNotEmpty) {
         _checkPoints.addAll(checkpoints);
       }
     } catch (e) {
-      _errorMessage = 'Erreur lors de la récupération de la liste des pointages';
-      debugPrint("$e");
-    notifyListeners();
+      _errorMessage =
+          'Erreur lors de la récupération de la liste des pointages';
+      notifyListeners();
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   Future<void> deleteCheckpoint(int checkpointId, int sessionId) async {
     try {
       await _checkpointService.deleteCheckPoint(checkpointId);
-        _checkPoints.remove(_checkPoints.where((s) => s.id == checkpointId).first);
+      _checkPoints.remove(
+        _checkPoints.where((s) => s.id == checkpointId).first,
+      );
 
-      if(_checkPoints.length < _pageSize){
+      if (_checkPoints.length < _pageSize) {
         _checkPoints.clear();
         await fetchCheckPoints(sessionId: sessionId);
       }
@@ -101,8 +105,19 @@ class CheckpointViewmodel extends ChangeNotifier {
     }
 
     try {
-      int idNewCheckPoint = await _checkpointService.insertNewCheckPoint(newCheckPoint);
-      _checkPoints.insert(0, CheckPoint(id: idNewCheckPoint, title: newCheckPoint.title, createdAt: newCheckPoint.createdAt, description: newCheckPoint.description, sessionId: newCheckPoint.sessionId));
+      int idNewCheckPoint = await _checkpointService.insertNewCheckPoint(
+        newCheckPoint,
+      );
+      _checkPoints.insert(
+        0,
+        CheckPoint(
+          id: idNewCheckPoint,
+          title: newCheckPoint.title,
+          createdAt: newCheckPoint.createdAt,
+          description: newCheckPoint.description,
+          sessionId: newCheckPoint.sessionId,
+        ),
+      );
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Impossible de créer le pointage!!';
@@ -112,7 +127,9 @@ class CheckpointViewmodel extends ChangeNotifier {
 
   Future<void> saveCheckPoint(EditCheckPointDto editCheckPoint) async {
     try {
-      final checkPointUpdated = await _checkpointService.updateCheckPoint(editCheckPoint);
+      final checkPointUpdated = await _checkpointService.updateCheckPoint(
+        editCheckPoint,
+      );
       final index = _checkPoints.indexWhere((s) => s.id == editCheckPoint.id);
       if (index != -1) {
         final checkPoint = _checkPoints[index];
@@ -121,7 +138,7 @@ class CheckpointViewmodel extends ChangeNotifier {
           title: checkPointUpdated.title,
           description: checkPointUpdated.description,
           createdAt: checkPoint.createdAt,
-          sessionId: checkPoint.sessionId
+          sessionId: checkPoint.sessionId,
         );
       }
       _errorMessage = null;
@@ -130,7 +147,6 @@ class CheckpointViewmodel extends ChangeNotifier {
     }
     notifyListeners();
   }
-
 
   /// Clear error message
   void clearError() {

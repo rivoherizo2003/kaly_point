@@ -24,9 +24,8 @@ class Person {
   }
 
   static bool isNotInSession(
-    PersonCheckPointDto personCheckPointDto,
-    CheckPoint currentCheckPoint,
-  ) => personCheckPointDto.currentSessionId != currentCheckPoint.sessionId;
+    PersonCheckPointDto personCheckPointDto
+  ) => personCheckPointDto.personSessionId == null;
 
   static bool inSessionNotServed(
     PersonCheckPointDto personCheckPointDto,

@@ -12,6 +12,7 @@ class PersonCheckPointDto {
     this.checkPointId,
     this.currentSessionId,
     this.checkPointPersonId,
+    this.personSessionId,
     required this.lastname,
     this.firstname,
   });
@@ -24,6 +25,7 @@ class PersonCheckPointDto {
       firstname: map['firstname'],
       checkPointId: map['check_point_id'],
       currentSessionId: map['current_session_id'],
+      personSessionId: map['session_person_id']
     );
   }
 }

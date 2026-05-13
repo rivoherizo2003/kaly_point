@@ -34,17 +34,40 @@ class CheckPointPersonService extends AbstractService {
     required int offset,
   }) async {
     try {
-      debugPrint("limit $limit offset $offset");
+      debugPrint("fetchToServePersons limit $limit offset $offset");
       final db = await databaseService.database;
-      final toServePersons = await db.rawQuery(
-        'SELECT p.id AS person_id, p.lastname, p.firstname, s.title AS session_title, target_cp.id AS check_point_id, s.id AS session_id FROM check_points target_cp JOIN sessions s ON target_cp.session_id = s.id JOIN session_person sp ON s.id = sp.session_id JOIN person p ON sp.person_id = p.id WHERE target_cp.id = ? AND NOT EXISTS (SELECT 1 FROM check_point_person cpp WHERE cpp.check_point_id = target_cp.id AND cpp.person_id = p.id) ORDER BY p.id,p.lastname ASC LIMIT ? OFFSET ?',
-        [checkPointId, limit, offset]
-      );
+      final String q = '''
+        SELECT 
+          p.id AS person_id,
+          p.lastname,p.firstname, 
+          sp.id AS session_person_id, 
+          (SELECT cp.session_id  FROM check_points cp WHERE cp.id = ?1 LIMIT 1) as current_session_id, 
+          (SELECT id FROM check_point_person cpp2 WHERE cpp2.check_point_id  = ?2 AND cpp2.person_id = p.id) AS check_point_person_id 
+          FROM check_points check_points 
+          JOIN sessions s ON check_points.session_id = s.id 
+          JOIN session_person sp ON s.id = sp.session_id 
+          JOIN person p ON sp.person_id = p.id 
+          WHERE check_points.id = ?3 AND 
+          NOT EXISTS (
+            SELECT 1 FROM check_point_person cpp 
+            WHERE cpp.check_point_id = check_points.id AND
+            cpp.person_id = p.id) 
+            ORDER BY p.id,p.lastname ASC LIMIT ?4 OFFSET ?5
+        ''';
+
+      final toServePersons = await db.rawQuery(q, [
+        checkPointId,
+        checkPointId,
+        checkPointId,
+        limit,
+        offset,
+      ]);
+      debugPrint("fetchToServePersons toServePersons ${toServePersons.length}");
       return toServePersons.map(
-        (checkPointPerson) =>
-            CheckPointPersonService().fromMap(checkPointPerson),
+        (checkPointPerson) => PersonCheckPointDto.fromMap(checkPointPerson),
       );
     } catch (error) {
+      debugPrint(error.toString());
       throw Exception("Failed to fetch person from check_point_person: $error");
     }
   }
@@ -55,7 +78,7 @@ class CheckPointPersonService extends AbstractService {
       lastname: map['lastname'],
       firstname: map['firstname'],
       checkPointId: map['check_point_id'],
-      currentSessionId: map['session_id']
+      currentSessionId: map['session_id'],
     );
   }
 

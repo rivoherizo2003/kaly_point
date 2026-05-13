@@ -38,10 +38,23 @@ class PerformCheckpointSessionService extends AbstractService {
     final List<String> paramsSplit = params.trim().split(" ");
     List<Object?> whereParams = [];
 
-    String query =
-        "SELECT p.id AS person_id, p.lastname,p.firstname, sp.id AS session_person_id, cpp.id AS check_point_person_id, (SELECT sp1.session_id  FROM session_person sp1 WHERE sp1.session_id = ?) as current_session_id, (SELECT id FROM check_point_person cpp2 WHERE cpp2.check_point_id  = ? AND cpp2.person_id = p.id) AS check_point_person_id  FROM person p LEFT JOIN session_person sp ON sp.person_id = p.id LEFT JOIN check_point_person cpp ON cpp.person_id = p.id";
+    String query = """
+          SELECT
+            p.id AS person_id,
+            p.lastname,
+            p.firstname,
+            sp1.id AS session_person_id,
+            cpp.id AS check_point_person_id,
+            (SELECT s.id  FROM sessions s WHERE s.id = ?) as current_session_id,
+            (SELECT sp2.id FROM session_person sp2 WHERE sp2.person_id = p.id AND sp2.session_id = ?) AS session_person_id,
+            (SELECT id FROM check_point_person cpp2 WHERE cpp2.check_point_id  = ? AND cpp2.person_id = p.id) AS check_point_person_id
+          FROM person p 
+          LEFT JOIN session_person sp1 ON sp1.person_id = p.id 
+          LEFT JOIN check_point_person cpp ON cpp.person_id = p.id
+        """;
 
     String? whereQuery = "";
+    whereParams.add(currentSessionId);
     whereParams.add(currentSessionId);
     whereParams.add(checkPointId);
 
@@ -99,8 +112,6 @@ class PerformCheckpointSessionService extends AbstractService {
     }
 
     query += " GROUP BY p.id";
-
-    debugPrint(query);
 
     final searchResults = await db.rawQuery(query, whereParams);
     return searchResults

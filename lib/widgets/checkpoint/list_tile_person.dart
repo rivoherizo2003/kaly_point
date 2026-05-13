@@ -4,6 +4,8 @@ import 'package:kaly_point/dto/person_check_point_dto.dart';
 class ListTilePerson extends StatelessWidget {
   final PersonCheckPointDto personCheckPointDto;
   final VoidCallback callBackTilePerson;
+  final VoidCallback callBackEndToStart;
+  final VoidCallback callBackStartToEnd;
   final Color iconColor;
   final Color colorBtnAndForegroundBtn;
   final Icon icon;
@@ -17,6 +19,8 @@ class ListTilePerson extends StatelessWidget {
     required this.icon,
     required this.colorBtnAndForegroundBtn,
     this.borderBtnColor,
+    required this.callBackEndToStart,
+    required this.callBackStartToEnd
   });
 
   @override
@@ -37,19 +41,25 @@ class ListTilePerson extends StatelessWidget {
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       confirmDismiss: (DismissDirection direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          callBackTilePerson();
+        if (direction == DismissDirection.endToStart) {
+          callBackEndToStart();
 
           return false;
-        } else if (direction == DismissDirection.endToStart) {
-          debugPrint("suppression");
+        } else if (direction == DismissDirection.startToEnd) {
+          callBackStartToEnd();
 
           return false;
         }
+
+        return true;
       },
       onDismissed: (direction) {
         if (direction == DismissDirection.endToStart) {
-          debugPrint("effectuer la suppression");
+          debugPrint("end to start");
+        }
+
+        if(direction == DismissDirection.startToEnd){
+          debugPrint("start to end");
         }
       },
       child: ListTile(

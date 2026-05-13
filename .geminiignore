@@ -1,0 +1,47 @@
+# --- DOSSIERS DE DÉPENDANCES ET BUILD ---
+# On ne veut pas que l'IA lise les bibliothèques ou le résultat de la compilation
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+
+# --- FICHIERS GÉNÉRÉS (Optionnel) ---
+# Si tu utilises build_runner (Freezed, JSON Serializable), 
+# ces fichiers sont souvent très lourds. 
+# Décommente la ligne suivante si tu veux que l'IA ne lise QUE ton code source.
+# *.g.dart
+# *.freezed.dart
+
+# --- PLATEFORMES NATIVES (Bruit important) ---
+# Sauf si tu as un bug spécifique à l'implémentation native (Java/Swift), 
+# il vaut mieux ignorer ces dossiers qui contiennent trop de fichiers boilerplate.
+android/
+ios/
+windows/
+linux/
+macos/
+web/
+
+# --- CONFIGURATION IDE ET SYSTÈME ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+*.log
+
+# --- FICHIERS SENSIBLES (Sécurité) ---
+# Ne JAMAIS laisser l'IA lire tes clés API ou secrets
+.env*
+*.pem
+*.jks
+google-services.json
+FirebaseService-*.json
+
+# --- MULTI-STACK BONUS (Puisque tu fais aussi du Java/PHP) ---
+# Si tes projets sont dans des sous-répertoires :
+vendor/
+node_modules/
+target/
+.gradle/
+bin/

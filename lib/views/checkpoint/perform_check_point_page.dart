@@ -2,13 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:kaly_point/constants/colors.dart';
+import 'package:kaly_point/dto/person_check_point_dto.dart';
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/views/checkpoint/create_new_person_page.dart';
+import 'package:kaly_point/views/checkpoint/edit_person_page.dart';
 import 'package:kaly_point/widgets/checkpoint/state_section.dart';
 import 'package:kaly_point/views/checkpoint/tab_list_served_persons_page.dart';
 import 'package:kaly_point/views/checkpoint/tab_list_to_serve_persons_page.dart';
+import 'package:kaly_point/widgets/confirm_dialog.dart';
 import 'package:kaly_point/widgets/my_app_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -68,6 +71,17 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
     );
   }
 
+  Future<void> _showEditFormPerson(PersonCheckPointDto personCheckPointDto) async {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (context) => EditPersonPage(
+        personCheckPointDto:personCheckPointDto,
+        indexActiveTab: _indexTabActive
+      ),
+    );
+  }
+
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
@@ -79,6 +93,28 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
         _indexTabActive,
       );
     });
+  }
+
+  Future<void> _onDeletePerson(PersonCheckPointDto personCheckPointDto) async {
+    String message = "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ?";
+    
+    final bool? confirmDeletePerson = await showDialog(context: context, builder: (context) => ConfirmDialog(
+      title: "Valider suppression",
+      content: message,
+      confirmText: 'Supprimer',
+    ));
+
+    if(confirmDeletePerson == true){
+      if(!mounted) return;
+
+      context.read<PerformCheckPointViewModel>().deletePerson(personId: personCheckPointDto.personId, indexTabActive: _indexTabActive);
+
+      if(context.read<PerformCheckPointViewModel>().errorMessage != null){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${context.read<PerformCheckPointViewModel>().errorMessage}")));
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${personCheckPointDto.firstname} ${personCheckPointDto.lastname} supprimé(e) avec succés!")));
+    }
   }
 
   @override
@@ -208,6 +244,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
                             TabListToServePersonsPage(
                               checkPoint: widget.checkPoint,
                               sessionTitle: widget.checkPoint.title,
+                              callBackDeletePerson:_onDeletePerson,
+                              callBackEditPerson:_showEditFormPerson
                             ),
                             TabListServedPersonsPage(
                               checkPoint: widget.checkPoint,
