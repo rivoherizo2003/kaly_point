@@ -6,15 +6,20 @@ import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
 import 'package:kaly_point/widgets/error_message.dart';
 import 'package:provider/provider.dart';
+import 'package:kaly_point/utils/typedefs.dart';
 
 class TabListServedPersonsPage extends StatefulWidget {
   final String sessionTitle;
   final CheckPoint checkPoint;
+  final OnDeletePersonCallback callBackDeletePerson;
+  final OnEditPersonCallback callBackEditPerson;
 
   const TabListServedPersonsPage({
     super.key,
     required this.checkPoint,
     required this.sessionTitle,
+    required this.callBackDeletePerson,
+    required this.callBackEditPerson,
   });
 
   @override
@@ -149,8 +154,9 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
               icon: const Icon(Icons.undo),
               colorBtnAndForegroundBtn: const Color.fromARGB(255, 201, 107, 7),
               iconColor: Colors.green,
-              callBackEndToStart: () => {},
-              callBackStartToEnd: () => {},
+              callBackEndToStart: () =>
+                  widget.callBackDeletePerson(personCheckPointDto),
+              callBackStartToEnd: () => widget.callBackEditPerson(personCheckPointDto),
             );
           },
         );

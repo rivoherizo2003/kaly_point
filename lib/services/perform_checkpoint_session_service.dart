@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
 import 'package:kaly_point/services/abstract_service.dart';
 import 'package:sqflite/sqflite.dart';

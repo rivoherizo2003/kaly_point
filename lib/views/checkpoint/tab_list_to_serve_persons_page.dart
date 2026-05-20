@@ -7,10 +7,9 @@ import 'package:kaly_point/viewmodels/perform_check_point_viewmodel.dart';
 import 'package:kaly_point/widgets/checkpoint/list_tile_person.dart';
 import 'package:kaly_point/widgets/confirm_dialog.dart';
 import 'package:kaly_point/widgets/error_message.dart';
+import 'package:kaly_point/utils/typedefs.dart';
 import 'package:provider/provider.dart';
 
-typedef OnDeletePersonCallback = Future<void> Function(PersonCheckPointDto);
-typedef OnEditPersonCallback = Future<void> Function(PersonCheckPointDto);
 
 class TabListToServePersonsPage extends StatefulWidget {
   final String sessionTitle;

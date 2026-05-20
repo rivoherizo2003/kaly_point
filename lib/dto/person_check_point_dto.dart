@@ -1,11 +1,11 @@
 class PersonCheckPointDto {
-  int personId;
-  int? checkPointId;
-  int? currentSessionId;
-  int? checkPointPersonId;
-  int? personSessionId;
-  String lastname;
-  String? firstname;
+  final int personId;
+  final int? checkPointId;
+  final int? currentSessionId;
+  final int? checkPointPersonId;
+  final int? personSessionId;
+  final String lastname;
+  final String? firstname;
 
   PersonCheckPointDto({
     required this.personId,
@@ -19,13 +19,13 @@ class PersonCheckPointDto {
 
   factory PersonCheckPointDto.fromMap(Map<String, dynamic> map) {
     return PersonCheckPointDto(
-      checkPointPersonId: map['check_point_person_id'],
-      personId: map['person_id'],
-      lastname: map['lastname'],
-      firstname: map['firstname'],
-      checkPointId: map['check_point_id'],
-      currentSessionId: map['current_session_id'],
-      personSessionId: map['session_person_id']
+      checkPointPersonId: map['check_point_person_id'] as int?,
+      personId: map['person_id'] as int,
+      lastname: map['lastname'] as String,
+      firstname: map['firstname'] as String?,
+      checkPointId: map['check_point_id'] as int?,
+      currentSessionId: map['current_session_id'] as int?,
+      personSessionId: map['session_person_id'] as int?,
     );
   }
 }

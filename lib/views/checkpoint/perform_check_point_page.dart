@@ -250,6 +250,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
                             TabListServedPersonsPage(
                               checkPoint: widget.checkPoint,
                               sessionTitle: widget.checkPoint.title,
+                              callBackDeletePerson:_onDeletePerson,
+                              callBackEditPerson:_showEditFormPerson
                             ),
                           ],
                         ),
