@@ -71,13 +71,15 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
     );
   }
 
-  Future<void> _showEditFormPerson(PersonCheckPointDto personCheckPointDto) async {
+  Future<void> _showEditFormPerson(
+    PersonCheckPointDto personCheckPointDto,
+  ) async {
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       builder: (context) => EditPersonPage(
-        personCheckPointDto:personCheckPointDto,
-        indexActiveTab: _indexTabActive
+        personCheckPointDto: personCheckPointDto,
+        indexActiveTab: _indexTabActive,
       ),
     );
   }
@@ -96,24 +98,50 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
   }
 
   Future<void> _onDeletePerson(PersonCheckPointDto personCheckPointDto) async {
-    String message = "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ?";
-    
-    final bool? confirmDeletePerson = await showDialog(context: context, builder: (context) => ConfirmDialog(
-      title: "Valider suppression",
-      content: message,
-      confirmText: 'Supprimer',
-    ));
+    String message =
+        "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ?";
 
-    if(confirmDeletePerson == true){
-      if(!mounted) return;
+    final bool? confirmDeletePerson = await showDialog(
+      context: context,
+      builder: (context) => ConfirmDialog(
+        title: "Valider suppression",
+        content: message,
+        confirmText: 'Supprimer',
+        warningText: "⚠️ Attention : Cette action est définitive.",
+      ),
+    );
 
-      context.read<PerformCheckPointViewModel>().deletePerson(personId: personCheckPointDto.personId, indexTabActive: _indexTabActive);
+    if (confirmDeletePerson == true) {
+      if (!mounted) return;
 
-      if(context.read<PerformCheckPointViewModel>().errorMessage != null){
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${context.read<PerformCheckPointViewModel>().errorMessage}")));
+      await context.read<PerformCheckPointViewModel>().deletePerson(
+        personId: personCheckPointDto.personId,
+        indexTabActive: _indexTabActive,
+        currentSessionId: personCheckPointDto.currentSessionId,
+        currentCheckPointId: personCheckPointDto.checkPointPersonId,
+      );
+      
+      if (!mounted) return;
+
+      final viewModel = context.read<PerformCheckPointViewModel>();
+      if (viewModel.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "${context.read<PerformCheckPointViewModel>().errorMessage}",
+            ),
+          ),
+        );
+        return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${personCheckPointDto.firstname} ${personCheckPointDto.lastname} supprimé(e) avec succés!")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "${personCheckPointDto.firstname} ${personCheckPointDto.lastname} supprimé(e) avec succés!",
+          ),
+        ),
+      );
     }
   }
 
@@ -244,14 +272,14 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
                             TabListToServePersonsPage(
                               checkPoint: widget.checkPoint,
                               sessionTitle: widget.checkPoint.title,
-                              callBackDeletePerson:_onDeletePerson,
-                              callBackEditPerson:_showEditFormPerson
+                              callBackDeletePerson: _onDeletePerson,
+                              callBackEditPerson: _showEditFormPerson,
                             ),
                             TabListServedPersonsPage(
                               checkPoint: widget.checkPoint,
                               sessionTitle: widget.checkPoint.title,
-                              callBackDeletePerson:_onDeletePerson,
-                              callBackEditPerson:_showEditFormPerson
+                              callBackDeletePerson: _onDeletePerson,
+                              callBackEditPerson: _showEditFormPerson,
                             ),
                           ],
                         ),

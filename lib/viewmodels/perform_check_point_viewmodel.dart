@@ -408,9 +408,12 @@ class PerformCheckPointViewModel extends ChangeNotifier {
   Future<void> deletePerson({
     required int personId,
     required int indexTabActive,
+    int? currentSessionId,
+    int? currentCheckPointId
   }) async {
     try {
-      await _sessionPersonService.deletePerson(personId: personId);
+      
+      await _sessionPersonService.deletePerson(personId: personId, currentSessionId: currentSessionId, currentCheckPointId: currentCheckPointId);
       if (indexTabActive == 0) {
         _personsToServe.removeWhere(
           (personCheckPointDto) => personCheckPointDto.personId == personId,
@@ -425,6 +428,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       notifyListeners();
     } catch (error) {
+      debugPrint("ee $error");
       _errorMessage = 'Erreur lors de la suppression de la personne';
       notifyListeners();
       return;

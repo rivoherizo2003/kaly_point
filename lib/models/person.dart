@@ -2,10 +2,10 @@ import 'package:kaly_point/dto/person_check_point_dto.dart';
 import 'package:kaly_point/models/check_point.dart';
 
 class Person {
-  int id;
-  String lastname;
-  String? firstname;
-  DateTime createdAt;
+  final int id;
+  final String lastname;
+  final String? firstname;
+  final DateTime createdAt;
 
   Person({
     required this.id,

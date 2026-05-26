@@ -40,8 +40,11 @@ Cette partie se fera directement dans la page pour faire le pointage.
 
 [] Ajouter une liste d'action sur chaque personne afin d'avoir les trois menus suivantes:
 
-- [] Lien pour supprimer une personne
-- [] Lien pour modifier les informations d'une personne
+- [] Lien pour supprimer une personne:
+  - Supprimer la personne de la checkpoint en cours
+  - S'il appartient déjà à une session existante il faut juste le supprimer de la session en cours SINON le supprimer définitivement de la table person
+
+- [x] Lien pour modifier les informations d'une personne
 
 ## Stocker/synchro les données sur firebase
 

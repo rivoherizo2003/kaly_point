@@ -114,4 +114,21 @@ class CheckPointPersonService extends AbstractService {
       throw Exception("Failed to delete check_point_person: $error");
     }
   }
+
+  Future<void> deleteByPersonIdCheckPointId({
+    required int personId,
+    required int checkPointId,
+  }) async {
+    try {
+      final db = await databaseService.database;
+
+      await db.delete(
+        "check_point_person",
+        where: 'person_id = ? AND check_point_id = ?',
+        whereArgs: [personId, checkPointId],
+      );
+    } catch (e) {
+      throw Exception("Failed to delete check_point_person: $e");
+    }
+  }
 }
