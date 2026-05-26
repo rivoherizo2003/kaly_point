@@ -1,7 +1,7 @@
 class PersonCheckPointDto {
   final int personId;
   final int? checkPointId;
-  final int? currentSessionId;
+  int? currentSessionId;
   final int? checkPointPersonId;
   final int? personSessionId;
   final String lastname;

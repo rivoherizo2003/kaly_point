@@ -27,7 +27,7 @@ class SessionPersonService extends AbstractService {
         createdAt: newSessionPerson.createdAt,
       );
     } catch (error) {
-      throw Exception("Failed to insert person in session: $error");
+      throw Exception("SessionPersonService[assignPersonToSession]: Failed to insert person in session: $error");
     }
   }
 
@@ -50,7 +50,7 @@ class SessionPersonService extends AbstractService {
 
       return SessionPerson.fromMap(sessionPerson.first);
     } catch (error) {
-      throw Exception("Failed to retrieve a person: $error");
+      throw Exception("SessionPersonService[findOneByPersonIdAndNotInCurrentSession]: Failed to retrieve a person: $error");
     }
   }
 
@@ -67,6 +67,8 @@ class SessionPersonService extends AbstractService {
         currentSessionId: currentSessionId,
       );
     }
+    debugPrint("DEBUG $personId $currentSessionId $sessionPerson");
+    return;
 
     if (sessionPerson == null) {
       //Delete the person in the current checkpoint
@@ -85,7 +87,7 @@ class SessionPersonService extends AbstractService {
         return;
       } catch (error) {
         debugPrint("$error");
-        throw Exception("Failed to delete person:$error");
+        throw Exception("SessionPersonService[deletePerson]: Failed to delete person:$error");
       }
     }
 
@@ -121,7 +123,7 @@ class SessionPersonService extends AbstractService {
       debugPrint("$e");
 
       throw Exception(
-        "Failed to remove person from checkpoint and session: $e",
+        "SessionPersonService[removePersonFromCheckPointAndSession]: Failed to remove person from checkpoint and session: $e",
       );
     }
   }
@@ -131,6 +133,7 @@ class SessionPersonService extends AbstractService {
     required int currentSessionId,
   }) async {
     try {
+      final db = await databaseService.database;
       await db.delete(
         "session_person",
         where: 'person_id = ? AND session_id = ?',
@@ -138,7 +141,7 @@ class SessionPersonService extends AbstractService {
       );
     } catch (e) {
       debugPrint("$e");
-      throw Exception("Failed to delete session_person: $e");
+      throw Exception("SessionPersonService[deleteByPersonIdAndSessionId]: Failed to delete session_person: $e");
     }
   }
 
@@ -157,7 +160,7 @@ class SessionPersonService extends AbstractService {
 
       return editPersonDto;
     } catch (error) {
-      throw Exception("Failed to update person: $error");
+      throw Exception("SessionPersonService[updatePerson]: Failed to update person: $error");
     }
   }
 }

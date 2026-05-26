@@ -90,7 +90,19 @@ class CheckPointPersonService extends AbstractService {
     try {
       final db = await databaseService.database;
       final servedPersons = await db.rawQuery(
-        'SELECT p.id AS person_id, p.lastname ,p.firstname,cpp.check_point_id, cpp.id AS check_point_person_id FROM person p JOIN check_point_person cpp ON cpp.person_id  = p.id WHERE cpp.check_point_id  = ? ORDER BY p.lastname ASC LIMIT ? OFFSET ?',
+        '''
+          SELECT 
+            p.id AS person_id, 
+            p.lastname ,
+            p.firstname,
+            cpp.check_point_id,
+            cpp.id AS check_point_person_id,
+            (SELECT cp.session_id  FROM check_points cp WHERE cp.id = ?1 LIMIT 1) as current_session_id
+            FROM person p 
+            JOIN check_point_person cpp ON cpp.person_id  = p.id 
+            WHERE cpp.check_point_id  = ?1 
+            ORDER BY p.lastname ASC LIMIT ?2 OFFSET ?3
+        ''',
         [checkPointId, limit, offset],
       );
 
@@ -128,7 +140,7 @@ class CheckPointPersonService extends AbstractService {
         whereArgs: [personId, checkPointId],
       );
     } catch (e) {
-      throw Exception("Failed to delete check_point_person: $e");
+      throw Exception("SessionPersonService[deleteByPersonIdCheckPointId]: Failed to delete check_point_person: $e");
     }
   }
 }

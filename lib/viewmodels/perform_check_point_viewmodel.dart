@@ -275,6 +275,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       _personsServed.addAll(personsServed);
       _hasMoreServedPersons = personsServed.length == _pageSize;
     } catch (e) {
+      debugPrint("$e");
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes servi';
     } finally {
@@ -428,7 +429,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       notifyListeners();
     } catch (error) {
-      debugPrint("ee $error");
       _errorMessage = 'Erreur lors de la suppression de la personne';
       notifyListeners();
       return;

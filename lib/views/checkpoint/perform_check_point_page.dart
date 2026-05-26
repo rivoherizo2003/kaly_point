@@ -113,7 +113,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
 
     if (confirmDeletePerson == true) {
       if (!mounted) return;
-
+      personCheckPointDto.currentSessionId = widget.checkPoint.sessionId;
+      
       await context.read<PerformCheckPointViewModel>().deletePerson(
         personId: personCheckPointDto.personId,
         indexTabActive: _indexTabActive,
@@ -278,8 +279,8 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
                             TabListServedPersonsPage(
                               checkPoint: widget.checkPoint,
                               sessionTitle: widget.checkPoint.title,
-                              callBackDeletePerson: _onDeletePerson,
-                              callBackEditPerson: _showEditFormPerson,
+                              onDeletePersonCallback: _onDeletePerson,
+                              onEditPersonCallback: _showEditFormPerson,
                             ),
                           ],
                         ),

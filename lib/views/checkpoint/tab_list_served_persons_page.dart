@@ -11,15 +11,15 @@ import 'package:kaly_point/utils/typedefs.dart';
 class TabListServedPersonsPage extends StatefulWidget {
   final String sessionTitle;
   final CheckPoint checkPoint;
-  final OnDeletePersonCallback callBackDeletePerson;
-  final OnEditPersonCallback callBackEditPerson;
+  final OnDeletePersonCallback onDeletePersonCallback;
+  final OnEditPersonCallback onEditPersonCallback;
 
   const TabListServedPersonsPage({
     super.key,
     required this.checkPoint,
     required this.sessionTitle,
-    required this.callBackDeletePerson,
-    required this.callBackEditPerson,
+    required this.onDeletePersonCallback,
+    required this.onEditPersonCallback,
   });
 
   @override
@@ -155,8 +155,8 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
               colorBtnAndForegroundBtn: const Color.fromARGB(255, 201, 107, 7),
               iconColor: Colors.green,
               callBackEndToStart: () =>
-                  widget.callBackDeletePerson(personCheckPointDto),
-              callBackStartToEnd: () => widget.callBackEditPerson(personCheckPointDto),
+                  widget.onDeletePersonCallback(personCheckPointDto),
+              callBackStartToEnd: () => widget.onEditPersonCallback(personCheckPointDto),
             );
           },
         );
