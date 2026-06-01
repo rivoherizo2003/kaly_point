@@ -106,6 +106,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       nbrPersonServed: nbrServedPersonCheckPoint,
       nbrPersonToServe: (nbrPersonInSession - nbrServedPersonCheckPoint),
     );
+    notifyListeners();
   }
 
   Future<void> assignNewPersonToCheckPointAndSession(

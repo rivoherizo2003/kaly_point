@@ -153,10 +153,12 @@ class _TabListServedPersons extends State<TabListServedPersonsPage> {
               },
               icon: const Icon(Icons.undo),
               colorBtnAndForegroundBtn: const Color.fromARGB(255, 201, 107, 7),
+              borderBtnColor: const Color.fromARGB(255, 201, 107, 7),
               iconColor: Colors.green,
               callBackEndToStart: () =>
                   widget.onDeletePersonCallback(personCheckPointDto),
               callBackStartToEnd: () => widget.onEditPersonCallback(personCheckPointDto),
+              ignoringPointer: false,
             );
           },
         );

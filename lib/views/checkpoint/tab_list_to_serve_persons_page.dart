@@ -10,7 +10,6 @@ import 'package:kaly_point/widgets/error_message.dart';
 import 'package:kaly_point/utils/typedefs.dart';
 import 'package:provider/provider.dart';
 
-
 class TabListToServePersonsPage extends StatefulWidget {
   final String sessionTitle;
   final CheckPoint checkPoint;
@@ -170,17 +169,18 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
               widget.checkPoint,
             );
 
-            debugPrint(
-              "build tab_list_to_serve_persons_page ${personCheckPointDto.lastname} ${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}",
+            // debugPrint(
+            //   "build tab_list_to_serve_persons_page ${personCheckPointDto.lastname} ${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}",
+            // );
+            final bool isPersonServed = Person.inSessionAndServed(
+              personCheckPointDto,
+              widget.checkPoint,
             );
+
             return ListTilePerson(
               iconColor: colorIconAndBtn,
               personCheckPointDto: personCheckPointDto,
-              callBackTilePerson:
-                  Person.inSessionAndServed(
-                    personCheckPointDto,
-                    widget.checkPoint,
-                  )
+              callBackTilePerson: isPersonServed
                   ? () => {}
                   : () => _onClickAssignPerson(
                       personId: personCheckPointDto.personId,
@@ -196,10 +196,14 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
                 ),
               ),
               colorBtnAndForegroundBtn: colorIconAndBtn,
-              borderBtnColor: null,
+              borderBtnColor: isPersonServed
+                  ? Colors.transparent
+                  : colorIconAndBtn,
               callBackEndToStart: () =>
                   widget.callBackDeletePerson(personCheckPointDto),
-              callBackStartToEnd: () => widget.callBackEditPerson(personCheckPointDto),
+              callBackStartToEnd: () =>
+                  widget.callBackEditPerson(personCheckPointDto),
+              ignoringPointer: isPersonServed,
             );
           },
         );

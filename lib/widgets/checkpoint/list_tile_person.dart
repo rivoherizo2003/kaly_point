@@ -9,7 +9,8 @@ class ListTilePerson extends StatelessWidget {
   final Color iconColor;
   final Color colorBtnAndForegroundBtn;
   final Icon icon;
-  final Color? borderBtnColor;
+  final Color borderBtnColor;
+  final bool ignoringPointer;
 
   const ListTilePerson({
     super.key,
@@ -18,9 +19,10 @@ class ListTilePerson extends StatelessWidget {
     required this.iconColor,
     required this.icon,
     required this.colorBtnAndForegroundBtn,
-    this.borderBtnColor,
+    required this.borderBtnColor,
     required this.callBackEndToStart,
-    required this.callBackStartToEnd
+    required this.callBackStartToEnd,
+    required this.ignoringPointer
   });
 
   @override
@@ -58,7 +60,7 @@ class ListTilePerson extends StatelessWidget {
           debugPrint("end to start");
         }
 
-        if(direction == DismissDirection.startToEnd){
+        if (direction == DismissDirection.startToEnd) {
           debugPrint("start to end");
         }
       },
@@ -74,17 +76,15 @@ class ListTilePerson extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton.outlined(
-              onPressed: callBackTilePerson,
-              icon: icon,
-              style: IconButton.styleFrom(
-                side: BorderSide(
-                  color: borderBtnColor == null
-                      ? colorBtnAndForegroundBtn
-                      : Colors.transparent,
-                  width: 1,
+            IgnorePointer(
+              ignoring: ignoringPointer,
+              child: IconButton.outlined(
+                onPressed: callBackTilePerson,
+                icon: icon,
+                style: IconButton.styleFrom(
+                  side: BorderSide(color: borderBtnColor, width: 1),
+                  foregroundColor: colorBtnAndForegroundBtn,
                 ),
-                foregroundColor: colorBtnAndForegroundBtn,
               ),
             ),
           ],
