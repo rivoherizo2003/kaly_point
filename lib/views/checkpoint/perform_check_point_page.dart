@@ -99,7 +99,7 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
 
   Future<void> _onDeletePerson(PersonCheckPointDto personCheckPointDto) async {
     String message =
-        "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ?";
+        "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ${personCheckPointDto.checkPointPersonId}?";
 
     final bool? confirmDeletePerson = await showDialog(
       context: context,
@@ -114,14 +114,14 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
     if (confirmDeletePerson == true) {
       if (!mounted) return;
       personCheckPointDto.currentSessionId = widget.checkPoint.sessionId;
-      
+
       await context.read<PerformCheckPointViewModel>().deletePerson(
         personId: personCheckPointDto.personId,
         indexTabActive: _indexTabActive,
         currentSessionId: personCheckPointDto.currentSessionId,
         currentCheckPointId: personCheckPointDto.checkPointPersonId,
       );
-      
+
       if (!mounted) return;
 
       final viewModel = context.read<PerformCheckPointViewModel>();
@@ -236,7 +236,7 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
                               Icons.search,
                               color: Colors.grey.shade600,
                             ),
-                            hintText: "Ex: 12 nom prenom",
+                            hintText: "Ex: 12-nom-prénom",
                             hintStyle: TextStyle(color: Colors.grey.shade600),
                             filled: true,
                             fillColor: Colors.grey.shade200,

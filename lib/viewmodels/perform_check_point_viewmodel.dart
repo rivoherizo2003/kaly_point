@@ -273,6 +273,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       debugPrint("ici ${personsServed.length}");
       _personsServed.addAll(personsServed);
+      debugPrint("total ${_personsServed.length} $_pageSize - $offset");
       _hasMoreServedPersons = personsServed.length == _pageSize;
     } catch (e) {
       debugPrint("$e");
@@ -429,6 +430,7 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       notifyListeners();
     } catch (error) {
+      debugPrint("$error");
       _errorMessage = 'Erreur lors de la suppression de la personne';
       notifyListeners();
       return;

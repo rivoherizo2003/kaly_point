@@ -34,7 +34,7 @@ class PerformCheckpointSessionService extends AbstractService {
     int currentSessionId,
   ) async {
     final db = await databaseService.database;
-    final List<String> paramsSplit = params.trim().split(" ");
+    final List<String> paramsSplit = params.trim().split("-");
     List<Object?> whereParams = [];
 
     String query = """
@@ -110,7 +110,7 @@ class PerformCheckpointSessionService extends AbstractService {
       query += " WHERE $whereQuery";
     }
 
-    query += " GROUP BY p.id";
+    query += " GROUP BY p.id ORDER BY p.lastname, p.firstname COLLATE NOCASE ASC";
 
     final searchResults = await db.rawQuery(query, whereParams);
     return searchResults

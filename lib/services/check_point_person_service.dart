@@ -3,6 +3,7 @@ import 'package:kaly_point/dto/new_person_check_point_dto.dart';
 import 'package:kaly_point/dto/person_check_point_dto.dart';
 import 'package:kaly_point/models/person_check_point.dart';
 import 'package:kaly_point/services/abstract_service.dart';
+import 'package:sqflite/sqflite.dart';
 
 class CheckPointPersonService extends AbstractService {
   Future<PersonCheckPoint> createPersonCheckPoint(
@@ -41,7 +42,7 @@ class CheckPointPersonService extends AbstractService {
           p.id AS person_id,
           p.lastname,p.firstname, 
           sp.id AS session_person_id, 
-          (SELECT cp.session_id  FROM check_points cp WHERE cp.id = ?1 LIMIT 1) as current_session_id, 
+          check_points.session_id as current_session_id, 
           (SELECT id FROM check_point_person cpp2 WHERE cpp2.check_point_id  = ?2 AND cpp2.person_id = p.id) AS check_point_person_id 
           FROM check_points check_points 
           JOIN sessions s ON check_points.session_id = s.id 
@@ -52,7 +53,7 @@ class CheckPointPersonService extends AbstractService {
             SELECT 1 FROM check_point_person cpp 
             WHERE cpp.check_point_id = check_points.id AND
             cpp.person_id = p.id) 
-            ORDER BY p.id,p.lastname ASC LIMIT ?4 OFFSET ?5
+            ORDER BY p.lastname COLLATE NOCASE,p.firstname COLLATE NOCASE LIMIT ?4 OFFSET ?5
         ''';
 
       final toServePersons = await db.rawQuery(q, [
@@ -101,7 +102,7 @@ class CheckPointPersonService extends AbstractService {
             FROM person p 
             JOIN check_point_person cpp ON cpp.person_id  = p.id 
             WHERE cpp.check_point_id  = ?1 
-            ORDER BY p.lastname ASC LIMIT ?2 OFFSET ?3
+            ORDER BY p.lastname COLLATE NOCASE,p.firstname COLLATE NOCASE LIMIT ?2 OFFSET ?3
         ''',
         [checkPointId, limit, offset],
       );
@@ -127,19 +128,20 @@ class CheckPointPersonService extends AbstractService {
     }
   }
 
-  Future<void> deleteByPersonIdCheckPointId({
-    required int personId,
-    required int checkPointId,
+  Future<void> deleteByCheckPointPersonId({
+    required int checkPointPersonId,
+    DatabaseExecutor? executor
   }) async {
     try {
-      final db = await databaseService.database;
+      final db = executor ?? await databaseService.database;
 
       await db.delete(
         "check_point_person",
-        where: 'person_id = ? AND check_point_id = ?',
-        whereArgs: [personId, checkPointId],
+        where: 'id = ?',
+        whereArgs: [checkPointPersonId],
       );
     } catch (e) {
+      debugPrint("erreur $e");
       throw Exception("SessionPersonService[deleteByPersonIdCheckPointId]: Failed to delete check_point_person: $e");
     }
   }

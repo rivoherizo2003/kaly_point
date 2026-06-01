@@ -4,6 +4,7 @@ import 'package:kaly_point/dto/new_session_person_dto.dart';
 import 'package:kaly_point/models/session_person.dart';
 import 'package:kaly_point/services/abstract_service.dart';
 import 'package:kaly_point/services/check_point_person_service.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class SessionPersonService extends AbstractService {
   final CheckPointPersonService checkPointPersonService =
@@ -27,16 +28,19 @@ class SessionPersonService extends AbstractService {
         createdAt: newSessionPerson.createdAt,
       );
     } catch (error) {
-      throw Exception("SessionPersonService[assignPersonToSession]: Failed to insert person in session: $error");
+      throw Exception(
+        "SessionPersonService[assignPersonToSession]: Failed to insert person in session: $error",
+      );
     }
   }
 
-  Future<SessionPerson?> findOneByPersonIdAndNotInCurrentSession({
+  Future<bool> isThisPersonIdRegisteredInAnotherSession({
     required int personId,
     required int currentSessionId,
+    DatabaseExecutor? executor,
   }) async {
     try {
-      final db = await databaseService.database;
+      final db = executor ?? await databaseService.database;
       final List<Map<String, dynamic>> sessionPerson = await db.query(
         "session_person",
         where: "person_id = ? AND session_id <> ?",
@@ -44,13 +48,11 @@ class SessionPersonService extends AbstractService {
         limit: 1,
       );
 
-      if (sessionPerson.isEmpty) {
-        return null;
-      }
-
-      return SessionPerson.fromMap(sessionPerson.first);
+      return sessionPerson.isNotEmpty;
     } catch (error) {
-      throw Exception("SessionPersonService[findOneByPersonIdAndNotInCurrentSession]: Failed to retrieve a person: $error");
+      throw Exception(
+        "SessionPersonService[findOneByPersonIdAndNotInCurrentSession]: Failed to retrieve a person: $error",
+      );
     }
   }
 
@@ -59,56 +61,67 @@ class SessionPersonService extends AbstractService {
     int? currentSessionId,
     int? currentCheckPointId,
   }) async {
-    SessionPerson? sessionPerson;
+    final db = await databaseService.database;
 
-    if (currentSessionId != null) {
-      sessionPerson = await findOneByPersonIdAndNotInCurrentSession(
-        personId: personId,
-        currentSessionId: currentSessionId,
-      );
-    }
-    debugPrint("DEBUG $personId $currentSessionId $sessionPerson");
-    return;
+    await db.transaction((txn) async {
+      bool isPersonIdResgisteredInOtherSession = false;
 
-    if (sessionPerson == null) {
-      //Delete the person in the current checkpoint
+      if (currentSessionId != null) {
+        isPersonIdResgisteredInOtherSession =
+            await isThisPersonIdRegisteredInAnotherSession(
+              personId: personId,
+              currentSessionId: currentSessionId,
+              executor: txn,
+            );
+      }
+
+      debugPrint("=> $isPersonIdResgisteredInOtherSession");
+
+      if (!isPersonIdResgisteredInOtherSession) {
+        //Delete the person in the current checkpoint
+        await removePersonFromCheckPointAndSession(
+          currentCheckPointId,
+          personId,
+          currentSessionId,
+          txn,
+        );
+
+        try {
+          await txn.delete("person", where: 'id = ?', whereArgs: [personId]);
+
+          return;
+        } catch (error) {
+          debugPrint("$error");
+          throw Exception(
+            "SessionPersonService[deletePerson]: Failed to delete person:$error",
+          );
+        }
+      }
+    });
+
+    db.transaction((txn) async {
       await removePersonFromCheckPointAndSession(
         currentCheckPointId,
         personId,
         currentSessionId,
+        txn,
       );
-
-      try {
-        //Delete the person
-        final db = await databaseService.database;
-
-        await db.delete("person", where: 'id = ?', whereArgs: [personId]);
-
-        return;
-      } catch (error) {
-        debugPrint("$error");
-        throw Exception("SessionPersonService[deletePerson]: Failed to delete person:$error");
-      }
-    }
-
-    await removePersonFromCheckPointAndSession(
-      currentCheckPointId,
-      personId,
-      currentSessionId,
-    );
+    });
   }
 
   Future<void> removePersonFromCheckPointAndSession(
-    int? currentCheckPointId,
+    int? currentCheckPointPersonId,
     int personId,
     int? currentSessionId,
+    DatabaseExecutor? executor,
   ) async {
     //Delete the person in the current checkpoint
     try {
-      if (currentCheckPointId != null) {
-        checkPointPersonService.deleteByPersonIdCheckPointId(
-          personId: personId,
-          checkPointId: currentCheckPointId,
+      debugPrint("ici $currentCheckPointPersonId $currentSessionId");
+      if (currentCheckPointPersonId != null) {
+        checkPointPersonService.deleteByCheckPointPersonId(
+          checkPointPersonId: currentCheckPointPersonId,
+          executor: executor,
         );
       }
 
@@ -117,11 +130,11 @@ class SessionPersonService extends AbstractService {
         await deleteByPersonIdAndSessionId(
           personId: personId,
           currentSessionId: currentSessionId,
+          executor: executor,
         );
       }
     } catch (e) {
       debugPrint("$e");
-
       throw Exception(
         "SessionPersonService[removePersonFromCheckPointAndSession]: Failed to remove person from checkpoint and session: $e",
       );
@@ -131,9 +144,10 @@ class SessionPersonService extends AbstractService {
   Future<void> deleteByPersonIdAndSessionId({
     required int personId,
     required int currentSessionId,
+    DatabaseExecutor? executor,
   }) async {
     try {
-      final db = await databaseService.database;
+      final db = executor ?? await databaseService.database;
       await db.delete(
         "session_person",
         where: 'person_id = ? AND session_id = ?',
@@ -141,7 +155,9 @@ class SessionPersonService extends AbstractService {
       );
     } catch (e) {
       debugPrint("$e");
-      throw Exception("SessionPersonService[deleteByPersonIdAndSessionId]: Failed to delete session_person: $e");
+      throw Exception(
+        "SessionPersonService[deleteByPersonIdAndSessionId]: Failed to delete session_person: $e",
+      );
     }
   }
 
@@ -160,7 +176,9 @@ class SessionPersonService extends AbstractService {
 
       return editPersonDto;
     } catch (error) {
-      throw Exception("SessionPersonService[updatePerson]: Failed to update person: $error");
+      throw Exception(
+        "SessionPersonService[updatePerson]: Failed to update person: $error",
+      );
     }
   }
 }

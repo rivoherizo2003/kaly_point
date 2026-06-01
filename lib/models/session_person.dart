@@ -11,6 +11,6 @@ class SessionPerson {
   });
 
   factory SessionPerson.fromMap(Map<String, dynamic> map){
-    return SessionPerson(id: map['id'], personId: map["person_id"], sessionId: map['session_id'], createdAt: map['created_at']);
+    return SessionPerson(id: map['id'], personId: map["person_id"], sessionId: map['session_id'], createdAt: DateTime.parse(map['created_at']));
   }
 }
