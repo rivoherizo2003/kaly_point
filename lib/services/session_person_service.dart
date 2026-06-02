@@ -75,7 +75,6 @@ class SessionPersonService extends AbstractService {
             );
       }
 
-      debugPrint("=> $isPersonIdResgisteredInOtherSession");
 
       if (!isPersonIdResgisteredInOtherSession) {
         //Delete the person in the current checkpoint
@@ -91,7 +90,6 @@ class SessionPersonService extends AbstractService {
 
           return;
         } catch (error) {
-          debugPrint("$error");
           throw Exception(
             "SessionPersonService[deletePerson]: Failed to delete person:$error",
           );
@@ -117,7 +115,6 @@ class SessionPersonService extends AbstractService {
   ) async {
     //Delete the person in the current checkpoint
     try {
-      debugPrint("ici $currentCheckPointPersonId $currentSessionId");
       if (currentCheckPointPersonId != null) {
         checkPointPersonService.deleteByCheckPointPersonId(
           checkPointPersonId: currentCheckPointPersonId,
@@ -134,7 +131,6 @@ class SessionPersonService extends AbstractService {
         );
       }
     } catch (e) {
-      debugPrint("$e");
       throw Exception(
         "SessionPersonService[removePersonFromCheckPointAndSession]: Failed to remove person from checkpoint and session: $e",
       );
@@ -154,7 +150,6 @@ class SessionPersonService extends AbstractService {
         whereArgs: [personId, currentSessionId],
       );
     } catch (e) {
-      debugPrint("$e");
       throw Exception(
         "SessionPersonService[deleteByPersonIdAndSessionId]: Failed to delete session_person: $e",
       );

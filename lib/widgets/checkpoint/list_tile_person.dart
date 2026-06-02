@@ -22,7 +22,7 @@ class ListTilePerson extends StatelessWidget {
     required this.borderBtnColor,
     required this.callBackEndToStart,
     required this.callBackStartToEnd,
-    required this.ignoringPointer
+    required this.ignoringPointer,
   });
 
   @override
@@ -55,15 +55,7 @@ class ListTilePerson extends StatelessWidget {
 
         return true;
       },
-      onDismissed: (direction) {
-        if (direction == DismissDirection.endToStart) {
-          debugPrint("end to start");
-        }
-
-        if (direction == DismissDirection.startToEnd) {
-          debugPrint("start to end");
-        }
-      },
+      onDismissed: (direction) {},
       child: ListTile(
         enabled: true,
         selected: false,

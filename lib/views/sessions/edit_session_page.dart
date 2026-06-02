@@ -58,7 +58,6 @@ class _EditSessionPageState extends State<EditSessionPage> {
           description: _descriptionController.text.trim(),
         ),
       );
-      context.read<SessionViewModel>().fetchSessions();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Session sauvegardée")),
       );

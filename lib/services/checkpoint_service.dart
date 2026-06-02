@@ -13,13 +13,20 @@ class CheckpointService extends AbstractService {
     final db = await databaseService.database;
 
     final results = await db
-        .query(
-          "check_points",
-          limit: limit,
-          offset: offset,
-          orderBy: "created_at DESC",
-          where: 'session_id = ?',
-          whereArgs: [sessionId],
+        .rawQuery(
+          '''
+            SELECT 
+              cp.id,
+              cp.session_id,
+              cp.title,
+              cp.description,
+              cp.created_at,
+              (SELECT COUNT(*) FROM check_point_person cpp WHERE cpp.check_point_id = cp.id) AS nbr_person_served
+            FROM check_points cp
+            WHERE session_id = ?1
+            ORDER BY created_at DESC LIMIT ?2 OFFSET ?3
+          ''',
+          [sessionId, limit, offset],
         )
         .onError((error, stackTrace) {
           throw Exception('Failed to fetch check points: $error');

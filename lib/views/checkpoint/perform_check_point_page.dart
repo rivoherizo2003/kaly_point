@@ -99,7 +99,7 @@ class _PerformCheckPointPageState extends State<PerformCheckPointPage>
 
   Future<void> _onDeletePerson(PersonCheckPointDto personCheckPointDto) async {
     String message =
-        "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ${personCheckPointDto.checkPointPersonId}?";
+        "Êtes vous sur de supprimer cette personne [${personCheckPointDto.firstname} ${personCheckPointDto.lastname}] ?";
 
     final bool? confirmDeletePerson = await showDialog(
       context: context,

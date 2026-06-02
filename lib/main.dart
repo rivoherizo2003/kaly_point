@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 
+
 void main() {
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     // Initialize FFI

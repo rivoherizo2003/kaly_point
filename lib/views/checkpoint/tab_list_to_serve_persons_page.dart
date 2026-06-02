@@ -169,9 +169,6 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
               widget.checkPoint,
             );
 
-            // debugPrint(
-            //   "build tab_list_to_serve_persons_page ${personCheckPointDto.lastname} ${personCheckPointDto.currentSessionId} == ${widget.checkPoint.sessionId} && ${personCheckPointDto.checkPointId} == ${widget.checkPoint.id}",
-            // );
             final bool isPersonServed = Person.inSessionAndServed(
               personCheckPointDto,
               widget.checkPoint,

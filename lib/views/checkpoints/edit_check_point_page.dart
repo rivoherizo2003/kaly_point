@@ -59,7 +59,6 @@ class _EditCheckPointPageState extends State<EditCheckPointPage> {
           description: _descriptionController.text.trim(),
         ),
       );
-      context.read<CheckpointViewmodel>().fetchCheckPoints(sessionId:widget.sessionId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Pointage sauvegardée")),
       );

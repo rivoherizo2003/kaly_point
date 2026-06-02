@@ -92,7 +92,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
-    debugPrint("fetch state point");
     int nbrPersonInSession = await _performCheckPointSessionService
         .countPersonInSession(sessionId: sessionId);
     int nbrServedPersonCheckPoint = await _performCheckPointSessionService
@@ -187,6 +186,8 @@ class PerformCheckPointViewModel extends ChangeNotifier {
           checkPointPersonId: personCheckPoint.id,
         ),
       );
+      _personsToServe.remove(_personsToServe.where((p) => p.personId == person.id).first);
+      
       _errorMessage = null;
       notifyListeners();
     } catch (error) {
@@ -237,7 +238,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
-    debugPrint("fetchToServePersons");
     _isLoading = true;
     _errorMessage = null;
     try {
@@ -262,7 +262,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     required int sessionId,
     required int checkPointId,
   }) async {
-    debugPrint("fetch served persons");
     _isLoadingServedPersons = true;
     _errorMessage = null;
     try {
@@ -272,12 +271,9 @@ class PerformCheckPointViewModel extends ChangeNotifier {
         limit: _pageSize,
         offset: offset,
       );
-      debugPrint("ici ${personsServed.length}");
       _personsServed.addAll(personsServed);
-      debugPrint("total ${_personsServed.length} $_pageSize - $offset");
       _hasMoreServedPersons = personsServed.length == _pageSize;
     } catch (e) {
-      debugPrint("$e");
       _errorMessage =
           'Erreur lors de la récupération de la liste des personnes servi';
     } finally {
@@ -291,7 +287,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     int sessionId,
     int checkPointId,
   ) async {
-    debugPrint("deletePersonCheckPoint");
     try {
       await _checkPointPersonService.deleteCheckPointPerson(
         checkPointPersonId: checkPointPersonId,
@@ -335,7 +330,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       handleSearchResultByTab(searchResults, indexActiveTab);
     } catch (error) {
       _errorMessage = "Erreur lors de la recherche d'une personne.";
-      debugPrint("$error");
       notifyListeners();
     }
   }
@@ -345,13 +339,9 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     int checkPointId,
     int indexActiveTab,
   ) {
-    debugPrint("handleEmptyQuerySearchByTab indexActiveTab $indexActiveTab");
     if (indexActiveTab == 0) {
       _personsToServe.clear();
       _currentPage = 1;
-      debugPrint(
-        "handleEmptyQuerySearchByTab _personsToServe ${_personsToServe.length}",
-      );
       fetchToServePersons(sessionId: sessionId, checkPointId: checkPointId);
       notifyListeners();
       return;
@@ -360,9 +350,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
     _currentPageServedPersons = 1;
     fetchServedPersons(sessionId: sessionId, checkPointId: checkPointId);
     notifyListeners();
-    debugPrint(
-      "handleEmptyQuerySearchByTab _personsServed ${_personsServed.length}",
-    );
   }
 
   void handleSearchResultByTab(
@@ -431,7 +418,6 @@ class PerformCheckPointViewModel extends ChangeNotifier {
       );
       notifyListeners();
     } catch (error) {
-      debugPrint("$error");
       _errorMessage = 'Erreur lors de la suppression de la personne';
       notifyListeners();
       return;

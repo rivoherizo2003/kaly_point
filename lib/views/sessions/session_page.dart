@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/models/session.dart';
+import 'package:kaly_point/models/state_check_point.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/session_viewmodel.dart';
 import 'package:kaly_point/views/checkpoints/check_points_page.dart';
@@ -21,6 +22,7 @@ class SessionPage extends StatefulWidget {
 
 class _SessionPageState extends State<SessionPage> {
   late ScrollController _scrollController;
+  int nbrPersonInSession = 0;
   double _scrollOffset = 0;
 
   @override
@@ -87,7 +89,7 @@ class _SessionPageState extends State<SessionPage> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => ConfirmDialog(
-        title: 'Suppression session?',
+        title: 'Suppression sessions?',
         content: 'Êtes vous sur de supprimer cette session $title?',
         confirmText: 'Delete',
       ),
@@ -138,7 +140,9 @@ class _SessionPageState extends State<SessionPage> {
 
           return ListView.builder(
             controller: _scrollController,
-            physics: AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            physics: AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
             itemCount:
                 viewModel.sessions.length + (viewModel.isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
@@ -159,7 +163,7 @@ class _SessionPageState extends State<SessionPage> {
               }
 
               final Session session = viewModel.sessions[index];
-
+             
               return Padding(
                 padding: const EdgeInsets.all(5),
                 child: Card.outlined(
@@ -168,11 +172,14 @@ class _SessionPageState extends State<SessionPage> {
                     splashColor: Colors.blue.withAlpha(30),
                     onTap: () {
                       Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                CheckPointsPage(sessionId: session.id, titleSession: session.title,),
+                        MaterialPageRoute(
+                          builder: (context) => CheckPointsPage(
+                            sessionId: session.id,
+                            titleSession: session.title,
+                            nbrPersonInSession: session.nbrPersonInSession
                           ),
-                        );
+                        ),
+                      );
                     },
                     child: CardWidget(
                       cardTitle: session.title,
@@ -184,6 +191,8 @@ class _SessionPageState extends State<SessionPage> {
                       callBackButton1: () => _editSession(session.id),
                       callBackButton2: () =>
                           _confirmDeleteSession(session.title, session.id),
+                      statsPersonsCheckPoint: false,
+                      stateCheckPoint: StateCheckPoint(nbrPersonInSession: session.nbrPersonInSession, nbrPersonServed: 0, nbrPersonToServe: 0),
                     ),
                   ),
                 ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/models/session.dart';
+import 'package:kaly_point/models/state_check_point.dart';
+import 'package:kaly_point/services/perform_checkpoint_session_service.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
 import 'package:kaly_point/views/checkpoint/perform_check_point_page.dart';
@@ -14,11 +16,13 @@ import 'package:provider/provider.dart';
 class CheckPointsPage extends StatefulWidget {
   final int sessionId;
   final String titleSession;
+  final int nbrPersonInSession;
 
   const CheckPointsPage({
     super.key,
     required this.sessionId,
     required this.titleSession,
+    required this.nbrPersonInSession
   });
 
   @override
@@ -202,6 +206,8 @@ class _CheckPointsPageState extends State<CheckPointsPage>
                         DateHelper.formatDate(checkPoint.createdAt),
                         checkPoint.id,
                       ),
+                      statsPersonsCheckPoint: true,
+                      stateCheckPoint: StateCheckPoint(nbrPersonInSession: widget.nbrPersonInSession, nbrPersonServed: checkPoint.nbrPersonServed, nbrPersonToServe: (widget.nbrPersonInSession - checkPoint.nbrPersonServed)),
                     ),
                   ),
                 ),

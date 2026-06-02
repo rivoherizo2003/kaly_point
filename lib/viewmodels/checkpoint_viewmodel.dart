@@ -64,6 +64,7 @@ class CheckpointViewmodel extends ChangeNotifier {
         limit: _pageSize,
         sessionId: sessionId,
       );
+      
       if (checkpoints.isNotEmpty) {
         _checkPoints.addAll(checkpoints);
       }

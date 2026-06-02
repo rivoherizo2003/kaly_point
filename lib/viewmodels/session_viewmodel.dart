@@ -30,12 +30,9 @@ class SessionViewModel extends ChangeNotifier {
       _currentPage = 1;
       _hasMore = true;
       _sessions.clear();
-      notifyListeners();
     } else {
       _isLoading = true;
-      notifyListeners();
     }
-
     await fetchSessions();
     _isLoading = false;
     notifyListeners();
@@ -45,10 +42,8 @@ class SessionViewModel extends ChangeNotifier {
     if (_isLoadingMore || !_hasMore) return;
 
     _isLoadingMore = true;
-    notifyListeners();
 
     _currentPage++;
-    notifyListeners();
     await fetchSessions();
 
     _isLoadingMore = false;
@@ -69,13 +64,11 @@ class SessionViewModel extends ChangeNotifier {
         _sessions.addAll(sessions);
       }
     } catch (e) {
-      debugPrint("$e");
-
       _errorMessage = 'Erreur lors de la récupération de la liste des sessions';
     } finally {
       _isLoading = false;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   /// Create a new session
@@ -121,8 +114,9 @@ class SessionViewModel extends ChangeNotifier {
       _errorMessage = null;
     } catch (e) {
       _errorMessage = 'Erreur lors de la mise à jour';
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   /// Delete a session
@@ -130,11 +124,6 @@ class SessionViewModel extends ChangeNotifier {
     try {
       await _sessionService.deleteSession(id);
       _sessions.remove(_sessions.where((s) => s.id == id).first);
-
-      if (_sessions.length < _pageSize) {
-        _sessions.clear();
-        await fetchSessions();
-      }
 
       _errorMessage = null;
     } catch (e) {

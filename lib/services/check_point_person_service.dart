@@ -63,12 +63,10 @@ class CheckPointPersonService extends AbstractService {
         limit,
         offset,
       ]);
-      debugPrint("fetchToServePersons toServePersons ${toServePersons.length}");
       return toServePersons.map(
         (checkPointPerson) => PersonCheckPointDto.fromMap(checkPointPerson),
       );
     } catch (error) {
-      debugPrint(error.toString());
       throw Exception("Failed to fetch person from check_point_person: $error");
     }
   }
@@ -141,7 +139,6 @@ class CheckPointPersonService extends AbstractService {
         whereArgs: [checkPointPersonId],
       );
     } catch (e) {
-      debugPrint("erreur $e");
       throw Exception("SessionPersonService[deleteByPersonIdCheckPointId]: Failed to delete check_point_person: $e");
     }
   }

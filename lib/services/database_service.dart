@@ -19,13 +19,6 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
-    // final currentDir = Directory.current;
-    // final dataDir = Directory(join(currentDir.path, 'data'));
-
-    // if (!dataDir.existsSync()) {
-    //   dataDir.createSync(recursive: true);
-    // }
-    // final path = join(dataDir.path, 'kaly_point.db');
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'kaly_point.db');
 

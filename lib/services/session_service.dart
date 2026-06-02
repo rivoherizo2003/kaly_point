@@ -9,21 +9,27 @@ class SessionService extends AbstractService {
     required int page,
     required int limit,
   }) async {
-
     final int offset = (page - 1) * limit;
     final db = await databaseService.database;
-      final results = 
-          await db.query(
-            "sessions",
-            limit: limit,
-            offset: offset,
-            orderBy: "created_at DESC",
-          )
-          .onError((error, stackTrace) {
-            throw Exception('Failed to fetch sessions: $error');
-          });
+    final results = await db
+        .rawQuery(
+          '''
+              SELECT
+                s.id,
+                s.title,
+                s.description,
+                s.created_at,
+                (SELECT COUNT(*) FROM session_person sp WHERE sp.session_id = s.id ) AS nbr_person_in_session
+              FROM sessions s
+              ORDER BY created_at DESC LIMIT ?1 OFFSET ?2
+            ''',
+          [limit, offset],
+        )
+        .onError((error, stackTrace) {
+          throw Exception('Failed to fetch sessions: $error');
+        });
 
-      return results.map((session) => Session.fromMap(session)).toList();
+    return results.map((session) => Session.fromMap(session)).toList();
   }
 
   Future<int> insertSession(AddSessionDto session) async {
