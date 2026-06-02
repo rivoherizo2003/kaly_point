@@ -26,16 +26,9 @@ class CheckpointViewmodel extends ChangeNotifier {
     required int sessionId,
     bool refresh = false,
   }) async {
-    if (refresh) {
-      _currentPage = 1;
-      _hasMore = true;
-      _checkPoints.clear();
-      notifyListeners();
-    } else {
-      _isLoading = true;
-      notifyListeners();
-    }
-
+    _currentPage = 1;
+    _hasMore = true;
+    _checkPoints.clear();
     await fetchCheckPoints(sessionId: sessionId);
     _isLoading = false;
     notifyListeners();
@@ -64,7 +57,7 @@ class CheckpointViewmodel extends ChangeNotifier {
         limit: _pageSize,
         sessionId: sessionId,
       );
-      
+
       if (checkpoints.isNotEmpty) {
         _checkPoints.addAll(checkpoints);
       }

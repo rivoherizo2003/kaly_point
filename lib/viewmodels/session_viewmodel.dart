@@ -26,13 +26,9 @@ class SessionViewModel extends ChangeNotifier {
 
   /// Initialize and fetch sessions
   Future<void> initialize({bool refresh = false}) async {
-    if (refresh) {
-      _currentPage = 1;
-      _hasMore = true;
-      _sessions.clear();
-    } else {
-      _isLoading = true;
-    }
+    _currentPage = 1;
+    _hasMore = true;
+    _sessions.clear();
     await fetchSessions();
     _isLoading = false;
     notifyListeners();

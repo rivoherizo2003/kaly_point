@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kaly_point/models/check_point.dart';
 import 'package:kaly_point/models/session.dart';
 import 'package:kaly_point/models/state_check_point.dart';
-import 'package:kaly_point/services/perform_checkpoint_session_service.dart';
 import 'package:kaly_point/utils/date_helper.dart';
 import 'package:kaly_point/viewmodels/checkpoint_viewmodel.dart';
 import 'package:kaly_point/views/checkpoint/perform_check_point_page.dart';
