@@ -1,4 +1,3 @@
-import 'package:flutter/rendering.dart';
 import 'package:kaly_point/dto/edit_person_dto.dart';
 import 'package:kaly_point/dto/new_session_person_dto.dart';
 import 'package:kaly_point/models/session_person.dart';

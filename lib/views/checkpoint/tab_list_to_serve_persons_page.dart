@@ -163,7 +163,7 @@ class _TabListToServePersonsPageState extends State<TabListToServePersonsPage> {
             final PersonCheckPointDto personCheckPointDto =
                 viewModel.personsToServe[index];
             final bool isOutOfSession =
-                personCheckPointDto.currentSessionId == null;
+                personCheckPointDto.personSessionId == null;
             final Color colorIconAndBtn = PersonCheckPoint.getColor(
               personCheckPointDto,
               widget.checkPoint,
